@@ -6,12 +6,12 @@
 <!-- Dashboard Heading -->
 <div class="page-header">
     <div>
-        <h1>Workspace Home</h1>
-        <p style="color: var(--text-muted);">Manage your college roadmap, logs, and metrics in one place.</p>
+        <h1>My Dashboard</h1>
+        <p style="color: var(--text-muted);">Manage your college studies, notes, and goals in one place.</p>
     </div>
     <div>
         <a href="{{ url_for('how_it_works') }}" class="btn btn-secondary">
-            <i class="fas fa-circle-question"></i> Guidebook
+            <i class="fas fa-circle-question"></i> Project Guide
         </a>
     </div>
 </div>
@@ -23,7 +23,7 @@
     <div class="bento-card glass bento-col-2 bento-welcome-card" style="border-top: 5px solid var(--accent-primary);">
         <h2 id="dashboard-greeting" data-username="{{ session.get('user_name') }}">Hello, Student! 👋</h2>
         <p style="color: var(--text-muted); font-size: 1.05rem; margin-top: 0.5rem; max-width: 500px;">
-            Welcome back to CampusDeck. Your custom academic command center is synchronized and ready for action.
+            Welcome back to CampusDeck. This is a local dashboard to track your classes, study hours, GPA, and goals.
         </p>
         <div>
             <span id="dashboard-clock" class="bento-welcome-time">⏰ --:--:-- --</span>
@@ -44,7 +44,7 @@
             
             <div class="gpa-badge-pill">
                 {% if stats.cgpa >= 9.0 %}
-                    Academic Elite 👑
+                    Excellent Grade 👑
                 {% elif stats.cgpa >= 8.0 %}
                     First Class Dist. 🚀
                 {% elif stats.cgpa >= 7.0 %}
@@ -87,7 +87,7 @@
 
     <!-- Box 4: Active Counters Summary (1x1) -->
     <div class="bento-card glass" style="border-top: 5px solid var(--accent-info);">
-        <span class="bento-card-title"><i class="fas fa-chart-pie" style="color: var(--accent-info);"></i> Workspace Counters</span>
+        <span class="bento-card-title"><i class="fas fa-chart-pie" style="color: var(--accent-info);"></i> Saved Items</span>
         <div class="bento-list" style="margin-top: 0.5rem;">
             <div class="bento-list-item">
                 <span style="font-weight: 700;"><i class="fas fa-bullseye" style="color: var(--accent-primary); margin-right: 0.5rem;"></i> Active Goals</span>
@@ -109,7 +109,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
             <span class="bento-card-title" style="margin-bottom: 0;"><i class="fas fa-clock" style="color: var(--accent-primary);"></i> Recent Study Logs</span>
             <a href="{{ url_for('study_log') }}" class="btn btn-secondary" style="padding: 0.45rem 1.1rem; font-size: 0.82rem;">
-                Logs Canvas <i class="fas fa-arrow-right"></i>
+                Study Logs <i class="fas fa-arrow-right"></i>
             </a>
         </div>
 
@@ -146,7 +146,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
             <span class="bento-card-title" style="margin-bottom: 0;"><i class="fas fa-sticky-note" style="color: var(--accent-warning);"></i> Recent Notes</span>
             <a href="{{ url_for('notes') }}" class="btn btn-secondary" style="padding: 0.45rem 1.1rem; font-size: 0.82rem;">
-                Note Board <i class="fas fa-arrow-right"></i>
+                My Notes <i class="fas fa-arrow-right"></i>
             </a>
         </div>
 

@@ -1,18 +1,27 @@
 """
-CampusDeck - Main Flask Application Backend (Authenticated Version)
+CampusDeck - Main Flask Application Backend
 --------------------------------------------------------------------------
-This file is the main driver of the web application. It handles routing, 
-incoming HTTP requests (forms), user authentication (sessions), and 
-reads/writes from our JSON database.
+This is the main Python script for our college web application.
+It runs a Flask web server, handles user login/register sessions, and acts as
+the backend by saving and loading data to simple local JSON files.
 
-Beginner-Friendly Concept Explanations:
-1. SESSIONS: When a user logs in, Flask saves their ID in a secure, encrypted cookie
-   called `session`. This lets the server know who is requesting the page on subsequent visits.
-2. PASSWORD HASHING: Storing plain text passwords is a security risk. We use
-   `generate_password_hash` to turn passwords into secure scrambled characters before saving,
-   and `check_password_hash` to safely verify them upon sign-in.
-3. DATA SEGREGATION: We add a `user_id` key to all items. When loading records,
-   the backend filters the global JSON array so users only see their own entries.
+=== EDUCATIONAL ARCHITECTURE EXPLANATIONS ===
+
+1. FLASK ROUTES (@app.route):
+   Flask uses decorators like `@app.route('/')` to connect browser URLs to Python functions.
+   When a user goes to a URL, Flask runs the matching function and returns HTML or redirects.
+
+2. TEMPLATE RENDERING (render_template):
+   We return HTML files using `render_template('index.html')`. Flask compiles these using
+   the Jinja2 engine, replacing template tags like {{ stats.cgpa }} with actual variables.
+
+3. SESSIONS & COOKIES (session):
+   We use the `session` dictionary to keep users logged in. Flask signs session cookies
+   with our `app.secret_key` so the browser cannot tamper with them.
+
+4. DATABASE OPERATION (load_data / save_data):
+   Instead of SQL, we use simple JSON text files. Python's `json` library translates these
+   text files directly into standard Python lists and dictionaries we can easily append to.
 """
 
 import os
@@ -22,24 +31,31 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
+# 1. Initialize Flask
+# ------------------
+# Creates our web application object. Flask uses __name__ to find static/templates directories.
 app = Flask(__name__)
-# Secret key is required by Flask to securely sign session cookies and power the flash messaging system.
-app.secret_key = 'college_companion_secure_dev_key'
 
+# Secret key is required to securely encrypt cookies for session state tracking and flash alert messages.
+app.secret_key = 'campusdeck_student_portfolio_secret_key'
+
+# 2. Database File Configurations
+# ------------------------------
 # Define the absolute directory where our data folder resides
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 
-# Create the data directory if it doesn't exist yet
+# Create the data directory folder if it is missing
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
-# Helper functions to load and save data from/to JSON files
+# 3. Database Helper Functions
+# ----------------------------
 def load_data(filename):
     """
     JSON Read Function:
-    Reads data from a JSON file in the 'data' directory.
-    If the file does not exist, it creates it with an empty list.
+    Loads a JSON database file and returns its data as a Python list.
+    If the file does not exist, it creates it with an empty list [].
     """
     file_path = os.path.join(DATA_DIR, filename)
     if not os.path.exists(file_path):
@@ -58,7 +74,7 @@ def load_data(filename):
 def save_data(filename, data):
     """
     JSON Write Function:
-    Writes a Python list/dictionary to a JSON file.
+    Saves a Python list/dictionary to a JSON file.
     This overwrites the previous file content with the updated database state.
     """
     file_path = os.path.join(DATA_DIR, filename)
@@ -66,14 +82,14 @@ def save_data(filename, data):
         json.dump(data, f, indent=4)
 
 # =========================================================================
-# Flask Routes
+# Flask Router & Route Handlers
 # =========================================================================
 
 @app.route('/')
 def index():
     """
     Landing Page Route:
-    Renders the landing/homepage of CampusDeck.
+    Renders the homepage. This route accepts default GET requests to view the page.
     """
     return render_template('index.html')
 
@@ -84,36 +100,42 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     """
-    User Registration Route:
-    - GET: Shows registration form.
-    - POST: Reads inputs, hashes password, saves profile, and initializes the session.
+    User Registration:
+    - GET: User clicks "Register" link. We show register.html.
+    - POST: User submits registration form. We validate and save user data.
     """
+    # If the user is already logged in, redirect them directly to their dashboard
     if session.get('user_id'):
         return redirect(url_for('dashboard'))
 
+    # Check if the form was submitted (which sends a POST request)
     if request.method == 'POST':
+        # Retrieve form values using their HTML 'name' attribute
         name = request.form.get('name')
         email = request.form.get('email')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
 
+        # Simple validation: ensure no empty fields
         if not name or not email or not password or not confirm_password:
             flash('All registration fields are required!', 'error')
             return redirect(url_for('register'))
 
+        # Ensure passwords match
         if password != confirm_password:
             flash('Passwords do not match!', 'error')
             return redirect(url_for('register'))
 
         users = load_data('users.json')
+        # Check if email is already taken
         if any(u.get('email') == email for u in users):
             flash('An account with this email is already registered!', 'error')
             return redirect(url_for('register'))
 
-        # Encrypt the password and save
+        # Encrypt (hash) the password. We never save raw plain-text passwords!
         hashed_pw = generate_password_hash(password)
         new_user = {
-            'id': str(uuid.uuid4()),
+            'id': str(uuid.uuid4()), # Generate a unique ID string for this user
             'name': name,
             'email': email,
             'password': hashed_pw
@@ -121,7 +143,7 @@ def register():
         users.append(new_user)
         save_data('users.json', users)
 
-        # Auto-login the user by setting session keys
+        # Log the user in automatically by saving their ID in the secure session cookie
         session['user_id'] = new_user['id']
         session['user_name'] = new_user['name']
         flash('Account created successfully! Welcome to your dashboard.', 'success')
@@ -132,9 +154,9 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """
-    User Sign-In Route:
-    - GET: Shows login form.
-    - POST: Validates hashed credentials and initializes the session.
+    User Sign-In:
+    - GET: User goes to /login. We render the login page.
+    - POST: User submits credentials. We verify passwords using security checks.
     """
     if session.get('user_id'):
         return redirect(url_for('dashboard'))
@@ -148,10 +170,12 @@ def login():
             return redirect(url_for('login'))
 
         users = load_data('users.json')
+        # Find user dictionary by matching email
         user = next((u for u in users if u.get('email') == email), None)
 
+        # Verify hashed password using Werkzeug security utility
         if user and check_password_hash(user['password'], password):
-            # Login successful: save information to session cookie
+            # Save user session details in cookie
             session['user_id'] = user['id']
             session['user_name'] = user['name']
             flash(f"Welcome back, {user['name']}!", 'success')
@@ -165,9 +189,10 @@ def login():
 @app.route('/logout')
 def logout():
     """
-    User Sign-Out Route:
-    Clears the session variables and redirects back to the homepage.
+    User Sign-Out:
+    Clears the session cookie data, logging the user out.
     """
+    # Delete all session keys
     session.clear()
     flash('You have successfully signed out.', 'success')
     return redirect(url_for('index'))
@@ -179,17 +204,17 @@ def logout():
 @app.route('/dashboard')
 def dashboard():
     """
-    Dashboard Summary Route:
-    Loads only user-specific data to aggregate stats and display previews.
+    Dashboard Home:
+    Aggregates user-specific metrics and displays previews of logs/notes.
     """
-    # Guard: Redirect user if not authenticated
+    # Guard check: redirect user if they are not logged in
     if not session.get('user_id'):
         flash('Please sign in to access your dashboard!', 'error')
         return redirect(url_for('login'))
 
     user_id = session.get('user_id')
 
-    # Load all records but filter by owner
+    # Load records and filter so users only see their own logs/marks/goals
     goals = [g for g in load_data('goals.json') if g.get('user_id') == user_id]
     resources = [r for r in load_data('resources.json') if r.get('user_id') == user_id]
     opportunities = [o for o in load_data('opportunities.json') if o.get('user_id') == user_id]
@@ -197,12 +222,12 @@ def dashboard():
     notes = [n for n in load_data('notes.json') if n.get('user_id') == user_id]
     marks = [m for m in load_data('marks.json') if m.get('user_id') == user_id]
 
-    # Calculate CGPA
+    # Calculate Cumulative GPA (CGPA) based on GPA Tracker marks
     total_gp_credits = sum(float(m.get('gp', 0)) * float(m.get('credits', 0)) for m in marks)
     total_credits = sum(float(m.get('credits', 0)) for m in marks)
     cgpa = total_gp_credits / total_credits if total_credits > 0 else 0.0
 
-    # Aggregating counters for summary cards
+    # Package metric numbers into a statistics dictionary
     stats = {
         'total_goals': len(goals),
         'total_resources': len(resources),

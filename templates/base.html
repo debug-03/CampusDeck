@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Your personal college dashboard for studies, opportunities, and goals. Manage resources, track logs, and take sticky notes.">
+    <meta name="description" content="My personal college tracking project built with Flask to manage studies, logs, and GPA.">
     <title>{% block title %}Home{% endblock %} - CampusDeck</title>
     
     <!-- Google Fonts & FontAwesome Icons -->
@@ -22,7 +22,7 @@
             }
         })();
     </script>
-
+ 
     <!-- Background Geometric Grid -->
     <div class="bg-grid"></div>
     <div class="mesh-bg">
@@ -31,12 +31,12 @@
         <div class="blob blob-3"></div>
         <div class="blob blob-4"></div>
     </div>
-
+ 
     <!-- Sticky Navbar -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="{{ url_for('index') }}" class="logo">
-                <i class="fas fa-graduation-cap"></i> CampusDeck
+                <i class="fas fa-graduation-cap"></i> CampusDeck <span style="font-size: 0.7rem; font-weight: 500; background: rgba(255, 255, 255, 0.12); color: var(--text-white); padding: 0.15rem 0.45rem; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.2); vertical-align: middle; margin-left: 0.5rem; display: inline-block;">Portfolio Project</span>
             </a>
             
             <button class="menu-toggle" aria-label="Toggle Navigation Menu">
@@ -103,7 +103,7 @@
     <!-- Footer Section -->
     <footer>
         <div class="app-container">
-            <p>&copy; 2026 CampusDeck. Your personal studies & productivity tool.</p>
+            <p>&copy; 2026 CampusDeck. Built as a first-year college learning project.</p>
             <p style="font-size: 0.8rem; opacity: 0.7;">Built with Python Flask, HTML, CSS, JavaScript, and JSON.</p>
         </div>
     </footer>

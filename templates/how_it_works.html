@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}How This Project Works{% endblock %}
+{% block title %}Project Architecture Guide{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1>How This Project Works</h1>
-        <p style="color: var(--text-muted);">A beginner-friendly guide explaining the backend architecture and components of CampusDeck.</p>
+        <h1>Project Architecture Guide</h1>
+        <p style="color: var(--text-muted);">A beginner-friendly technical guide explaining the backend architecture, flow, and concepts of CampusDeck.</p>
     </div>
 </div>
 
@@ -15,122 +15,188 @@
     <aside class="docs-sidebar glass">
         <h3>Contents</h3>
         <nav class="docs-nav">
-            <a href="#what-is-flask" class="active"><i class="fas fa-chevron-right"></i> Flask & Core Libraries</a>
-            <a href="#understanding-routes"><i class="fas fa-chevron-right"></i> Routes & URL Paths</a>
-            <a href="#understanding-templates"><i class="fas fa-chevron-right"></i> Jinja2 HTML Templates</a>
-            <a href="#understanding-json"><i class="fas fa-chevron-right"></i> JSON Database Concept</a>
-            <a href="#understanding-forms"><i class="fas fa-chevron-right"></i> Saving Form Data</a>
+            <a href="#request-lifecycle" class="active"><i class="fas fa-chevron-right"></i> 1. Request Lifecycle</a>
+            <a href="#core-libraries"><i class="fas fa-chevron-right"></i> 2. Core Libraries</a>
+            <a href="#auth-security"><i class="fas fa-chevron-right"></i> 3. Hashed Auth & Cookies</a>
+            <a href="#json-database"><i class="fas fa-chevron-right"></i> 4. JSON DB & GPA Math</a>
+            <a href="#form-processing"><i class="fas fa-chevron-right"></i> 5. Form Handling</a>
+            <a href="#python-concepts"><i class="fas fa-chevron-right"></i> 6. Python Code Concepts</a>
         </nav>
     </aside>
 
     <!-- Main documentation text -->
     <div class="docs-content">
-        <!-- Section 1: Flask and Python Libraries -->
-        <section id="what-is-flask" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
-            <h2>1. What Flask Does & Used Libraries</h2>
-            <p><strong>Flask</strong> is a micro web framework written in Python. It is called "micro" because it does not require particular tools or libraries, keeping the core lightweight while remaining extremely flexible. In this project, Flask behaves as the central web server that listens for traffic from your browser, decides how to handle that traffic, and sends back the correct response (like an HTML page or a redirect command).</p>
+        
+        <!-- Section 1: Request Lifecycle -->
+        <section id="request-lifecycle" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
+            <h2>1. Web Request Lifecycle</h2>
+            <p>Every time you click a navigation link, view a list, or submit a form, a round-trip communications lifecycle occurs between your web browser and the Python Flask backend server.</p>
             
-            <p>Here are the standard libraries used in <code>app.py</code> and what they accomplish:</p>
+            <p>Here is the step-by-step path of a request:</p>
+            
+            <div class="architecture-flow" style="display: flex; flex-direction: column; gap: 1rem; margin: 1.5rem 0;">
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+                    <span style="font-weight: bold; background: var(--accent-primary); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; shrink: 0;">1</span>
+                    <div>
+                        <strong>Browser Client Request:</strong> You request a page (e.g., visiting <code>/dashboard</code>). The browser initiates a standard HTTP request.
+                    </div>
+                </div>
+                <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem;"><i class="fas fa-arrow-down"></i></div>
+                
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+                    <span style="font-weight: bold; background: var(--accent-primary); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; shrink: 0;">2</span>
+                    <div>
+                        <strong>Flask Router Matching:</strong> Flask receives the request and searches <code>app.py</code> for a decorator containing that path: <code>@app.route('/dashboard')</code>.
+                    </div>
+                </div>
+                <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem;"><i class="fas fa-arrow-down"></i></div>
+                
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+                    <span style="font-weight: bold; background: var(--accent-primary); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; shrink: 0;">3</span>
+                    <div>
+                        <strong>Python Logic execution:</strong> Flask executes the associated view function, checking if the session cookies exist, loading lists from the JSON files, and computing stats.
+                    </div>
+                </div>
+                <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem;"><i class="fas fa-arrow-down"></i></div>
+                
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+                    <span style="font-weight: bold; background: var(--accent-primary); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; shrink: 0;">4</span>
+                    <div>
+                        <strong>Jinja2 Template Compilation:</strong> Python executes <code>render_template('dashboard.html', stats=stats)</code>. Jinja2 reads the template file, replacing loops and variables with raw data to compile flat HTML.
+                    </div>
+                </div>
+                <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem;"><i class="fas fa-arrow-down"></i></div>
+                
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+                    <span style="font-weight: bold; background: var(--accent-primary); color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; shrink: 0;">5</span>
+                    <div>
+                        <strong>HTTP View Response:</strong> Flask returns the compiled HTML string. Your browser renders the interface and runs the custom client scripts.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Core Libraries -->
+        <section id="core-libraries" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
+            <h2>2. Core Python Standard Modules</h2>
+            <p>To implement this project without heavy third-party framework code, we leverage standard Python built-in utility modules:</p>
             <ul class="docs-bullet">
-                <li><strong>flask (Flask, render_template, request, etc.):</strong> Used to manage our server, compile HTML views, receive forms, and issue user alert overlays.</li>
-                <li><strong>json:</strong> Used to parse files written in JSON format into Python lists/dictionaries, and encode them back to save updates.</li>
-                <li><strong>os:</strong> Interacts with the computer's directory paths safely so Flask can locate file resources regardless of the operating system (Windows, Mac, or Linux).</li>
-                <li><strong>uuid:</strong> Generates "Universally Unique Identifiers" (long, random strings of characters) so every goal, note, resource, and log has a guaranteed unique <code>id</code>.</li>
-                <li><strong>datetime:</strong> Used to stamp our sticky notes with the current calendar date and time when they are posted.</li>
+                <li><strong>flask (Flask, render_template, request, session, redirect):</strong> The core micro web framework. Handles routing paths, processes server request metrics, manages signed session state cookies, and compiles Jinja2 templates.</li>
+                <li><strong>json:</strong> Formats text string data into Python data structures (lists and dicts) and encodes Python lists back into standard file systems representation.</li>
+                <li><strong>os:</strong> Performs operating-system independent file path manipulations so that the backend can load data files correctly on Windows, Mac, or Linux systems.</li>
+                <li><strong>uuid:</strong> Generates "Universally Unique Identifiers" (128-bit random strings) to assign safe primary keys to goals, notes, and academic marks records.</li>
+                <li><strong>datetime:</strong> Statically stamps creation logs and counts day durations for opportunities countdown metrics.</li>
             </ul>
         </section>
 
-        <!-- Section 2: Understanding Routes -->
-        <section id="understanding-routes" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
-            <h2>2. What are Routes?</h2>
-            <p>A <strong>Route</strong> in web development maps a specific URL (like <code>/dashboard</code> or <code>/goals</code>) to a specific Python function in our code. We define these routes in Flask using <em>decorators</em> starting with <code>@app.route()</code>.</p>
+        <!-- Section 3: Secure Hashed Auth & Cookies -->
+        <section id="auth-security" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
+            <h2>3. Secure Hashed Authentication & Session Cookies</h2>
             
-            <p>When you type a URL or click a link, the browser sends an HTTP request. Flask intercepts it and executes the function associated with that route path. For example, here is our dashboard routing logic:</p>
-            <div class="docs-code">
-@app.route('/dashboard')
-def dashboard():
-    # 1. Load data from JSON database files
-    goals = load_data('goals.json')
-    notes = load_data('notes.json')
-    
-    # 2. Package stats and recent entries
-    stats = { 'total_goals': len(goals) }
-    recent_notes = notes[-3:] # Get latest notes
-    
-    # 3. Render and return the HTML layout
-    return render_template('dashboard.html', stats=stats, recent_notes=recent_notes)
+            <h3>Why We Never Store Plaintext Passwords</h3>
+            <p>Storing user passwords as plain text in a database is a major security risk. If an unauthorized person gets access to <code>data/users.json</code>, they would see everyone's password. To prevent this, we use the cryptographic hashing tools in <code>werkzeug.security</code>:</p>
+            
+            <div class="docs-bullet" style="margin-bottom: 1.5rem;">
+                <p><strong>Password Hashing (<code>generate_password_hash</code>):</strong> When a user signs up, the backend hashes their password. Hashing is a one-way mathematical function. It turns the password (like <code>my_password123</code>) into a long, scrambled string (like <code>scrypt:32768:8:1$7f...</code>). You cannot decrypt this back to find the original password.</p>
+                <p><strong>Hash Verification (<code>check_password_hash</code>):</strong> When logging in, the server takes the password entered in the login form, passes it through the exact same hash formula, and compares the resulting scramble with the hashed string stored in <code>users.json</code>. If they match, the user is authenticated.</p>
             </div>
+
+            <h3>How Flask Sessions Work</h3>
+            <p>HTTP is a <em>stateless</em> protocol, meaning each webpage request is completely independent. The server doesn't automatically know if you are the same person who logged in a second ago.</p>
+            
+            <p>To remember who you are, we use a <strong>Session</strong>. In Flask, <code>session</code> acts like a dictionary where we can save user information (like <code>session['user_id'] = user_id</code>). This data is stored in the user's browser inside a cookie.</p>
+            
+            <p>To make this secure and prevent users from changing their cookie data to impersonate someone else, Flask signs the session cookie cryptographically using our <code>app.secret_key</code>. If a user tries to modify their cookie values, the signature check fails, and Flask automatically invalidates the session.</p>
         </section>
 
-        <!-- Section 3: Templates -->
-        <section id="understanding-templates" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
-            <h2>3. What are Templates?</h2>
-            <p>Writing static HTML is limiting because data changes constantly. A <strong>Template</strong> is an HTML file containing placeholders and logical syntax. Flask uses a template rendering engine called <strong>Jinja2</strong>.</p>
+        <!-- Section 4: JSON DB & GPA Math -->
+        <section id="json-database" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
+            <h2>4. Local JSON File Database & GPA Mathematics</h2>
+            <p>Rather than setting up complex SQL servers, this project uses local flat JSON files inside the <code>data/</code> folder. A JSON file represents structured data directly using key-value fields, mapping seamlessly to Python dictionaries and lists.</p>
             
-            <p>In this project, templates allow us to perform dynamic layout computations directly in HTML, like looping through a list of sticky notes or conditionally drawing colored status badges:</p>
+            <p>Below is a sample course grade record from <code>data/marks.json</code>:</p>
             <div class="docs-code">
-&lt;!-- Jinja2 Syntax Example --&gt;
-{% raw %}{% if goals %}
-    {% for goal in goals %}
-        &lt;div class="item-card"&gt;
-            &lt;h3&gt;{{ goal.title }}&lt;/h3&gt;
-            &lt;span&gt;Category: {{ goal.category }}&lt;/span&gt;
-        &lt;/div&gt;
-    {% endfor %}
-{% else %}
-    &lt;p&gt;No active goals found!&lt;/p&gt;
-{% endif %}{% endraw %}
-            </div>
-            <p>We also use <strong>Template Inheritance</strong> (<code>{% raw %}{% extends 'base.html' %}{% endraw %}</code>). This allows us to write the navigation menu, logo, footer, and styling links only once in <code>base.html</code>, and inherit them across all other views.</p>
-        </section>
-
-        <!-- Section 4: JSON Database & GPA Math -->
-        <section id="understanding-json" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
-            <h2>4. What a JSON Database Means & GPA Math</h2>
-            <p>Traditional web applications use relational databases (like SQLite, MySQL, or PostgreSQL) which require writing SQL queries. To keep this project beginner-friendly and lightweight, we use a <strong>JSON file database</strong>.</p>
-            
-            <p>JSON stands for <em>JavaScript Object Notation</em>. It is a text file layout that represents data in a structured key-value format. The text format maps directly to Python's built-in <strong>lists</strong> and <strong>dictionaries</strong>. When the app starts, we open the text files using Python's <code>json.load()</code> function, modify the lists, and save the updated contents back to disk using <code>json.dump()</code>.</p>
-            
-            <p>For example, here is how a marks entry is formatted in <code>data/marks.json</code>. Notice how the backend automatically computes the <code>total</code> score and translates it into a letter <code>grade</code> and numeric <code>gp</code> (Grade Point):</p>
-            <div class="docs-code">
-# Standard academic record stored in data/marks.json:
 {
-    "id": "a49bb2d3-1349-411a-8bb7-e54bf83141f2",
-    "course_name": "Database Management Systems",
-    "semester": 3,
+    "id": "e963625f-22a0-4ff6-8367-bf988b489d8d",
+    "course_name": "Introduction to Programming",
+    "semester": 1,
     "credits": 4,
-    "mtt1": 18.5,
-    "mtt2": 17.0,
-    "ica": 19.0,
-    "term_end": 35.5,
-    "total": 90.0,
-    "grade": "O",
-    "gp": 10
+    "mtt1": 8.5,
+    "mtt2": 9.0,
+    "ica": 27.5,
+    "term_end": 72.0,
+    "total": 81.0,
+    "grade": "A+",
+    "gp": 9
 }
             </div>
-            <p><strong>The GPA Mathematics:</strong></p>
+
+            <h3 style="margin-top: 1.5rem;">Academic Grade Calculations</h3>
+            <p>The backend automatically handles grades calculation inside <code>app.py</code> using standard college grading rules:</p>
+            
             <ul class="docs-bullet">
-                <li><strong>Total Marks:</strong> Sum of MTT 1 (0-10) + MTT 2 (0-10) + ICA (0-30) + Term End scaled to 50 (TEE * 0.5) = Total (0-100).</li>
-                <li><strong>Grade Point (GP):</strong> Calculated on a 10-point scale where scores &ge; 90 earn 10 GP (O), &ge; 80 earn 9 GP (A+), &ge; 70 earn 8 GP (A), and so forth. Scores &lt; 40 earn 0 GP (F).</li>
-                <li><strong>Semester SGPA:</strong> Calculated as: <code>Sum(Course GP * Course Credits) / Sum(Course Credits)</code> for that semester's courses.</li>
-                <li><strong>Cumulative CGPA:</strong> The credit-weighted average of all courses across all recorded semesters.</li>
+                <li><strong>Weighted Term End:</strong> Term-End exams are evaluated out of 100 on papers but scaled down to a weight of 50%. The weighted exam score = <code>term_end * 0.5</code>.</li>
+                <li><strong>Total Marks:</strong> Summed as <code>MTT 1 (max 10) + MTT 2 (max 10) + ICA (max 30) + (Term End * 0.5)</code>, yielding a total score out of 100.</li>
+                <li><strong>Grade Point (GP) Allocation:</strong>
+                    <ul style="margin-top: 0.5rem; padding-left: 1rem; list-style-type: circle;">
+                        <li>Marks &ge; 90: Grade <strong>O</strong> (GP: 10)</li>
+                        <li>Marks &ge; 80: Grade <strong>A+</strong> (GP: 9)</li>
+                        <li>Marks &ge; 70: Grade <strong>A</strong> (GP: 8)</li>
+                        <li>Marks &ge; 60: Grade <strong>B+</strong> (GP: 7)</li>
+                        <li>Marks &ge; 50: Grade <strong>B</strong> (GP: 6)</li>
+                        <li>Marks &ge; 40: Grade <strong>C</strong> (GP: 5)</li>
+                        <li>Marks &lt; 40: Grade <strong>F</strong> (GP: 0)</li>
+                    </ul>
+                </li>
+                <li><strong>Semester SGPA:</strong> Weighted average of that semester's course grades:
+                    <div style="font-style: italic; margin: 0.5rem 0; font-family: monospace;">SGPA = Sum(Course GP * Course Credits) / Sum(Course Credits)</div>
+                </li>
+                <li><strong>Cumulative CGPA:</strong> Calculated as the weighted average grade point of every course logged in the system.</li>
             </ul>
         </section>
 
         <!-- Section 5: Form Handling -->
-        <section id="understanding-forms" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
-            <h2>5. How Form Data is Processed & Saved</h2>
-            <p>When you click a submit button on any form (like adding a resource or logging hours), the browser packs up the inputs and sends them to the Flask server via an HTTP <strong>POST</strong> request.</p>
+        <section id="form-processing" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
+            <h2>5. Processing Form Data Safely</h2>
+            <p>Every time you log a study session or create a reminder note, Flask performs a structured process to save your input data:</p>
             
-            <p>The backend performs the following steps to process the form submission:</p>
-            <ul class="docs-bullet">
-                <li><strong>Route Interception:</strong> The route configuration permits both <code>GET</code> (viewing) and <code>POST</code> (saving) methods.</li>
-                <li><strong>Form Reading:</strong> Flask extracts the input text utilizing the <code>request.form.get('input_name')</code> property.</li>
-                <li><strong>UUID & Stamping:</strong> Python attaches a newly generated <code>uuid.uuid4()</code> string identifier and handles status defaults.</li>
-                <li><strong>File Append:</strong> We load the current list from the JSON file, append the new item dictionary to it, and write the updated list back to the filesystem.</li>
-                <li><strong>Session Flash Notification:</strong> A message is saved to the session indicating successful creation, and the browser is redirected to refresh the list views.</li>
-            </ul>
+            <ol class="docs-bullet" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <li><strong>Submit Request:</strong> The HTML form is configured with <code>method="POST"</code>, sending form fields securely inside the request body rather than in the URL query string.</li>
+                <li><strong>Extract Values:</strong> Python catches the form submission and reads the inputs using <code>request.form.get('field_name')</code>.</li>
+                <li><strong>Database Append:</strong> The controller opens the correct database file (e.g. <code>notes.json</code>) using <code>load_data()</code>, appends a new dictionary record, and writes the list back to disk using <code>save_data()</code>.</li>
+                <li><strong>Flash & Redirect:</strong> To prevent the browser from submitting duplicates on page refreshes, we return a <code>redirect(url_for('notes'))</code>. We use Flask's <code>flash()</code> to queue up a success message display on the next page load.</li>
+            </ol>
         </section>
+
+        <!-- Section 6: Python Concepts -->
+        <section id="python-concepts" class="glass" style="padding: 2rem;">
+            <h2>6. Python Language Features Used</h2>
+            <p>Here are two important Python coding patterns used in this project that make our code clean and concise:</p>
+            
+            <h3>1. Python Dictionaries</h3>
+            <p>A dictionary stores data in key-value pairs. Dictionaries are incredibly convenient for database records. For example:</p>
+            <div class="docs-code">
+# A note is a Python dictionary
+new_note = {
+    'id': 'a82bc...',
+    'title': 'Algorithms MTT Prep',
+    'content': 'Study Big-O notation and Sorting proofs',
+    'color': 'yellow'
+}
+            </div>
+
+            <h3>2. List Comprehensions</h3>
+            <p>List comprehensions provide a concise way to create lists. In <code>app.py</code>, we use them to quickly filter data lists or search through our database. For example:</p>
+            <div class="docs-code">
+# 1. Filter: Get only notes created by the current user
+user_notes = [note for note in all_notes if note.get('user_id') == session.get('user_id')]
+
+# 2. Check: Determine if an email already exists in our list
+if any(user.get('email') == email for user in all_users):
+    flash('Email already registered!')
+            </div>
+        </section>
+
     </div>
 </div>
 
