@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}Quick Notes{% endblock %}
+{% block title %}Sticky Notes{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1>Quick Notes</h1>
-        <p style="color: var(--text-muted);">Jot down quick thoughts, formulas, lists, or details on sticky notes.</p>
+        <h1>Sticky Notes</h1>
+        <p style="color: var(--text-muted);">A simple board to post quick reminders, formulas, or study notes.</p>
     </div>
 </div>
 
 <!-- Add Note Form -->
 <section class="form-section glass">
-    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-pen-to-square" style="color: var(--accent-primary);"></i> Write Sticky Note</h2>
+    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-pen-to-square" style="color: var(--accent-primary);"></i> Add a New Note</h2>
     <form action="{{ url_for('notes') }}" method="POST">
         <div class="form-grid">
             <!-- Note Title -->
@@ -57,7 +57,7 @@
 
         <div style="text-align: right;">
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-thumbtack"></i> Post Note
+                <i class="fas fa-thumbtack"></i> Add Note
             </button>
         </div>
     </form>
@@ -88,7 +88,7 @@
     {% else %}
         <div class="glass" style="grid-column: 1 / -1; padding: 4rem; text-align: center; color: var(--text-muted);">
             <i class="fas fa-sticky-note" style="font-size: 4rem; opacity: 0.15; margin-bottom: 1rem; display: block;"></i>
-            <p>Your notes canvas is clear. Stick your first reminder!</p>
+            <p>The board is currently empty. Add your first note above!</p>
         </div>
     {% endif %}
 </section>

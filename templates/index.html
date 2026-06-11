@@ -6,7 +6,7 @@
 <!-- Hero Section -->
 <section class="hero">
     <h1 class="animate-fade-in">CampusDeck<br><span style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">My Studies Companion</span></h1>
-    <p class="animate-fade-in delay-1">A simple project I built to track my classes, study logs, GPA, and goals. All data is saved locally on my computer using JSON files.</p>
+    <p class="animate-fade-in delay-1">This is a small website I built during my first semester to keep track of my college stuff. I wanted to learn Flask and see how to make a site without using SQL, so it just saves everything to local JSON files.</p>
     
     <div class="hero-cta animate-fade-in delay-2">
         {% if session.get('user_id') %}
@@ -38,12 +38,12 @@
         <p>Set custom goals, choose target dates, and check them off when done.</p>
     </div>
 
-    <!-- Card 2: Resource Vault -->
+    <!-- Card 2: Bookmarks -->
     <div class="feature-item glass glass-interactive" style="border-top-color: var(--accent-secondary);">
         <div class="feature-icon-wrapper" style="background: rgba(255, 117, 143, 0.1); color: var(--accent-secondary);">
             <i class="fas fa-vault"></i>
         </div>
-        <h3>Vault</h3>
+        <h3>My Bookmarks</h3>
         <p>Save links to my slide decks, lecture notes, and reference files.</p>
     </div>
 
@@ -52,20 +52,11 @@
         <div class="feature-icon-wrapper" style="background: rgba(255, 183, 3, 0.1); color: var(--accent-warning);">
             <i class="fas fa-briefcase"></i>
         </div>
-        <h3>Opps Tracker</h3>
+        <h3>Internships/Opps</h3>
         <p>Track hackathons, coding contests, and internship deadlines with countdowns.</p>
     </div>
 
-    <!-- Card 4: Study Log -->
-    <div class="feature-item glass glass-interactive" style="border-top-color: var(--accent-success);">
-        <div class="feature-icon-wrapper" style="background: rgba(32, 201, 151, 0.1); color: var(--accent-success);">
-            <i class="fas fa-clock"></i>
-        </div>
-        <h3>Study Log</h3>
-        <p>Log study hours per subject and track my weekly target progress.</p>
-    </div>
-
-    <!-- Card 5: Sticky Notes -->
+    <!-- Card 4: Sticky Notes -->
     <div class="feature-item glass glass-interactive" style="border-top-color: var(--accent-info);">
         <div class="feature-icon-wrapper" style="background: rgba(14, 165, 233, 0.1); color: var(--accent-info);">
             <i class="fas fa-sticky-note"></i>
@@ -74,12 +65,12 @@
         <p>Draft quick reminders, list items, or study drafts on my dashboard board.</p>
     </div>
 
-    <!-- Card 6: Academic Tracker -->
+    <!-- Card 5: Academic Tracker -->
     <div class="feature-item glass glass-interactive" style="border-top-color: var(--accent-primary);">
         <div class="feature-icon-wrapper" style="background: rgba(108, 93, 211, 0.1); color: var(--accent-primary);">
             <i class="fas fa-award"></i>
         </div>
-        <h3>GPA Tracker</h3>
+        <h3>Grade Tracker</h3>
         <p>Log my marks (MTTs, ICA, Term End) and let the code compute my semester SGPA.</p>
     </div>
 </section>

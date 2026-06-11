@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}Opportunity Tracker{% endblock %}
+{% block title %}Internship Tracker{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1>Opportunity Tracker</h1>
-        <p style="color: var(--text-muted);">Track internships, competitions, scholarships, and hackathons with interactive countdowns.</p>
+        <h1>Internships & Opps</h1>
+        <p style="color: var(--text-muted);">A dashboard where I list internships, hackathons, and scholarship deadlines so I don't miss them.</p>
     </div>
 </div>
 
 <!-- Add Opportunity Form -->
 <section class="form-section glass">
-    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-primary);"></i> Track New Opportunity</h2>
+    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-primary);"></i> Add an Internship/Opp</h2>
     <form action="{{ url_for('opportunities') }}" method="POST">
         <div class="form-grid">
             <!-- Opportunity Name -->
@@ -65,7 +65,7 @@
 
         <div style="text-align: right;">
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Track Opportunity
+                <i class="fas fa-plus"></i> Add to Tracker
             </button>
         </div>
     </form>
@@ -126,7 +126,7 @@
     {% else %}
         <div class="glass" style="grid-column: 1 / -1; padding: 4rem; text-align: center; color: var(--text-muted);">
             <i class="fas fa-briefcase" style="font-size: 4rem; opacity: 0.15; margin-bottom: 1rem; display: block;"></i>
-            <p>No active opportunities cataloged. Start tracing career steps!</p>
+            <p>No internships or deadlines tracked yet. Use the form above to add one!</p>
         </div>
     {% endif %}
 </section>

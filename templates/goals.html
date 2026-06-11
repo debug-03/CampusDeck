@@ -5,14 +5,14 @@
 {% block content %}
 <div class="page-header">
     <div>
-        <h1>Study Goals</h1>
-        <p style="color: var(--text-muted);">Define, track, and accomplish your academic milestones.</p>
+        <h1>My Goals</h1>
+        <p style="color: var(--text-muted);">A simple place to write down my semester goals and check them off.</p>
     </div>
 </div>
 
 <!-- Add Goal Form -->
 <section class="form-section glass">
-    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-primary);"></i> Create New Study Goal</h2>
+    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-primary);"></i> Add a New Goal</h2>
     <form action="{{ url_for('goals') }}" method="POST">
         <div class="form-grid">
             <!-- Goal Title -->

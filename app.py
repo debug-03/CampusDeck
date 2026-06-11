@@ -214,11 +214,10 @@ def dashboard():
 
     user_id = session.get('user_id')
 
-    # Load records and filter so users only see their own logs/marks/goals
+    # Load records and filter so users only see their own marks/goals/etc.
     goals = [g for g in load_data('goals.json') if g.get('user_id') == user_id]
     resources = [r for r in load_data('resources.json') if r.get('user_id') == user_id]
     opportunities = [o for o in load_data('opportunities.json') if o.get('user_id') == user_id]
-    logs = [l for l in load_data('study_logs.json') if l.get('user_id') == user_id]
     notes = [n for n in load_data('notes.json') if n.get('user_id') == user_id]
     marks = [m for m in load_data('marks.json') if m.get('user_id') == user_id]
 
@@ -232,18 +231,16 @@ def dashboard():
         'total_goals': len(goals),
         'total_resources': len(resources),
         'total_opportunities': len(opportunities),
-        'total_logs': len(logs),
-        'total_hours': sum(float(log.get('hours', 0)) for log in logs),
         'cgpa': cgpa
     }
 
     # Fetch up to 3 most recent notes (newest first)
     recent_notes = sorted(notes, key=lambda x: x.get('created_at', ''), reverse=True)[:3]
     
-    # Fetch up to 3 most recent study logs (newest first)
-    recent_logs = sorted(logs, key=lambda x: x.get('date', ''), reverse=True)[:3]
+    # Fetch up to 3 upcoming active goals
+    active_goals = sorted([g for g in goals if g.get('status') != 'Completed'], key=lambda x: x.get('target_date', ''))[:3]
 
-    return render_template('dashboard.html', stats=stats, recent_notes=recent_notes, recent_logs=recent_logs)
+    return render_template('dashboard.html', stats=stats, recent_notes=recent_notes, active_goals=active_goals)
 
 # -------------------------------------------------------------------------
 # Study Goals Section (Protected)
@@ -466,71 +463,7 @@ def delete_opportunity(opp_id):
     flash('Opportunity tracker entry deleted.', 'success')
     return redirect(url_for('opportunities'))
 
-# -------------------------------------------------------------------------
-# Study Log Section (Protected)
-# -------------------------------------------------------------------------
 
-@app.route('/study-log', methods=['GET', 'POST'])
-def study_log():
-    """
-    Study Log Route.
-    """
-    if not session.get('user_id'):
-        flash('Please sign in to access study logs!', 'error')
-        return redirect(url_for('login'))
-
-    user_id = session.get('user_id')
-    all_logs = load_data('study_logs.json')
-
-    if request.method == 'POST':
-        subject = request.form.get('subject')
-        hours = request.form.get('hours')
-        content = request.form.get('content')
-        date = request.form.get('date')
-
-        if not subject or not hours or not content or not date:
-            flash('Please complete all study log inputs!', 'error')
-            return redirect(url_for('study_log'))
-
-        try:
-            hours_float = float(hours)
-        except ValueError:
-            flash('Hours studied must be a numerical value!', 'error')
-            return redirect(url_for('study_log'))
-
-        new_log = {
-            'id': str(uuid.uuid4()),
-            'user_id': user_id,
-            'subject': subject,
-            'hours': hours_float,
-            'content': content,
-            'date': date
-        }
-
-        all_logs.append(new_log)
-        save_data('study_logs.json', all_logs)
-        flash('Study log recorded!', 'success')
-        return redirect(url_for('study_log'))
-
-    user_logs = [l for l in all_logs if l.get('user_id') == user_id]
-    user_logs = sorted(user_logs, key=lambda x: x.get('date', ''), reverse=True)
-    return render_template('study_log.html', logs=user_logs)
-
-@app.route('/study-log/delete/<log_id>', methods=['POST'])
-def delete_study_log(log_id):
-    """
-    Delete Study Log.
-    """
-    if not session.get('user_id'):
-        return redirect(url_for('login'))
-
-    user_id = session.get('user_id')
-    all_logs = load_data('study_logs.json')
-    updated_list = [l for l in all_logs if not (l['id'] == log_id and l.get('user_id') == user_id)]
-    
-    save_data('study_logs.json', updated_list)
-    flash('Study log entry removed.', 'success')
-    return redirect(url_for('study_log'))
 
 # -------------------------------------------------------------------------
 # Quick Notes Section (Protected)

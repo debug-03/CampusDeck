@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}Resource Vault{% endblock %}
+{% block title %}My Bookmarks{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1>Resource Vault</h1>
-        <p style="color: var(--text-muted);">Store articles, tutorials, papers, and references in one database.</p>
+        <h1>My Bookmarks</h1>
+        <p style="color: var(--text-muted);">A place to store links to lecture slides, assignments, tools, and reading materials.</p>
     </div>
 </div>
 
 <!-- Add Resource Form -->
 <section class="form-section glass">
-    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-primary);"></i> Save New Resource</h2>
+    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-secondary);"></i> Add a Bookmark</h2>
     <form action="{{ url_for('resources') }}" method="POST">
         <div class="form-grid">
             <!-- Resource Title -->
@@ -54,7 +54,7 @@
 
         <div style="text-align: right;">
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-folder-plus"></i> Save Resource
+                <i class="fas fa-plus"></i> Add Bookmark
             </button>
         </div>
     </form>
@@ -104,7 +104,7 @@
     {% else %}
         <div class="glass" style="grid-column: 1 / -1; padding: 4rem; text-align: center; color: var(--text-muted);">
             <i class="fas fa-vault" style="font-size: 4rem; opacity: 0.15; margin-bottom: 1rem; display: block;"></i>
-            <p>Your vault is empty. Keep high-value bookmarks here!</p>
+            <p>No bookmarks saved yet. Use the form above to add a link!</p>
         </div>
     {% endif %}
 </section>

@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 
-{% block title %}Marks & GPA Calculator{% endblock %}
+{% block title %}Grade Tracker{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1>Marks Tracker & GPA</h1>
-        <p style="color: var(--text-muted);">Manage your academic records, input test results, and compute semester SGPAs & CGPA.</p>
+        <h1>Grade Tracker</h1>
+        <p style="color: var(--text-muted);">A simple sheet to calculate my semester GPA and CGPA from MTTs, ICA, and Term End marks.</p>
     </div>
 </div>
 
@@ -34,7 +34,7 @@
 
 <!-- Add Course Marks Form -->
 <section class="form-section glass" style="margin-bottom: 3rem;">
-    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-primary);"></i> Record Course Marks</h2>
+    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-primary);"></i> Add Course Grades</h2>
     <form action="{{ url_for('marks') }}" method="POST">
         <div class="form-grid">
             <!-- Course Name -->
@@ -87,7 +87,7 @@
 
         <div style="text-align: right;">
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> Save Marks Record
+                <i class="fas fa-save"></i> Add Course
             </button>
         </div>
     </form>
@@ -165,7 +165,7 @@
     {% if not ns.has_any %}
         <div class="glass" style="padding: 4rem; text-align: center; color: var(--text-muted);">
             <i class="fas fa-graduation-cap" style="font-size: 4rem; opacity: 0.15; margin-bottom: 1rem; display: block;"></i>
-            <p>No marks records saved yet. Fill out the form above to initialize your GPA tracker sheets!</p>
+            <p>No course marks added yet. Use the form above to add your courses and calculate your GPA.</p>
         </div>
     {% endif %}
 </section>

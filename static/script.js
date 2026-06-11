@@ -212,13 +212,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 let greeting = '';
                 
                 if (hour >= 5 && hour < 12) {
-                    greeting = `Rise & Grind, ${userName}! ☕`;
+                    greeting = `Good morning, ${userName}! 👋`;
                 } else if (hour >= 12 && hour < 17) {
-                    greeting = `Keep going, ${userName}! 📚`;
+                    greeting = `Good afternoon, ${userName}! 👋`;
                 } else if (hour >= 17 && hour < 22) {
-                    greeting = `Focus sessions, ${userName}! 🎯`;
+                    greeting = `Good evening, ${userName}! 👋`;
                 } else {
-                    greeting = `Burning the midnight oil, ${userName}? 🦉`;
+                    greeting = `Late night study, ${userName}? 🌙`;
                 }
                 
                 if (greetingEl.textContent !== greeting) {
@@ -240,17 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const percentage = Math.min(Math.max((gpaValue / 10.0) * 100, 0), 100);
         setTimeout(() => {
             gpaBar.style.width = `${percentage}%`;
-        }, 150);
-    }
-
-    const studyBar = document.getElementById('dashboard-study-bar');
-    if (studyBar) {
-        const studyHours = parseFloat(studyBar.getAttribute('data-hours')) || 0.0;
-        const targetHours = parseFloat(studyBar.getAttribute('data-target')) || 20.0;
-        // Percentage calculated based on hours relative to target
-        const percentage = Math.min(Math.max((studyHours / targetHours) * 100, 0), 100);
-        setTimeout(() => {
-            studyBar.style.width = `${percentage}%`;
         }, 150);
     }
 });
