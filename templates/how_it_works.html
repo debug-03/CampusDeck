@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}How This Project Works{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>How This Project Works</h1>
+        <p style="color: var(--text-muted);">A beginner-friendly guide explaining the backend architecture and components of CampusDeck.</p>
+    </div>
+</div>
+
+<div class="docs-layout">
+    <!-- Sidebar navigation for quick scrolling -->
+    <aside class="docs-sidebar glass">
+        <h3>Contents</h3>
+        <nav class="docs-nav">
+            <a href="#what-is-flask" class="active"><i class="fas fa-chevron-right"></i> Flask & Core Libraries</a>
+            <a href="#understanding-routes"><i class="fas fa-chevron-right"></i> Routes & URL Paths</a>
+            <a href="#understanding-templates"><i class="fas fa-chevron-right"></i> Jinja2 HTML Templates</a>
+            <a href="#understanding-json"><i class="fas fa-chevron-right"></i> JSON Database Concept</a>
+            <a href="#understanding-forms"><i class="fas fa-chevron-right"></i> Saving Form Data</a>
+        </nav>
+    </aside>
+
+    <!-- Main documentation text -->
+    <div class="docs-content">
+        <!-- Section 1: Flask and Python Libraries -->
+        <section id="what-is-flask" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
+            <h2>1. What Flask Does & Used Libraries</h2>
+            <p><strong>Flask</strong> is a micro web framework written in Python. It is called "micro" because it does not require particular tools or libraries, keeping the core lightweight while remaining extremely flexible. In this project, Flask behaves as the central web server that listens for traffic from your browser, decides how to handle that traffic, and sends back the correct response (like an HTML page or a redirect command).</p>
+            
+            <p>Here are the standard libraries used in <code>app.py</code> and what they accomplish:</p>
+            <ul class="docs-bullet">
+                <li><strong>flask (Flask, render_template, request, etc.):</strong> Used to manage our server, compile HTML views, receive forms, and issue user alert overlays.</li>
+                <li><strong>json:</strong> Used to parse files written in JSON format into Python lists/dictionaries, and encode them back to save updates.</li>
+                <li><strong>os:</strong> Interacts with the computer's directory paths safely so Flask can locate file resources regardless of the operating system (Windows, Mac, or Linux).</li>
+                <li><strong>uuid:</strong> Generates "Universally Unique Identifiers" (long, random strings of characters) so every goal, note, resource, and log has a guaranteed unique <code>id</code>.</li>
+                <li><strong>datetime:</strong> Used to stamp our sticky notes with the current calendar date and time when they are posted.</li>
+            </ul>
+        </section>
+
+        <!-- Section 2: Understanding Routes -->
+        <section id="understanding-routes" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
+            <h2>2. What are Routes?</h2>
+            <p>A <strong>Route</strong> in web development maps a specific URL (like <code>/dashboard</code> or <code>/goals</code>) to a specific Python function in our code. We define these routes in Flask using <em>decorators</em> starting with <code>@app.route()</code>.</p>
+            
+            <p>When you type a URL or click a link, the browser sends an HTTP request. Flask intercepts it and executes the function associated with that route path. For example, here is our dashboard routing logic:</p>
+            <div class="docs-code">
+@app.route('/dashboard')
+def dashboard():
+    # 1. Load data from JSON database files
+    goals = load_data('goals.json')
+    notes = load_data('notes.json')
+    
+    # 2. Package stats and recent entries
+    stats = { 'total_goals': len(goals) }
+    recent_notes = notes[-3:] # Get latest notes
+    
+    # 3. Render and return the HTML layout
+    return render_template('dashboard.html', stats=stats, recent_notes=recent_notes)
+            </div>
+        </section>
+
+        <!-- Section 3: Templates -->
+        <section id="understanding-templates" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
+            <h2>3. What are Templates?</h2>
+            <p>Writing static HTML is limiting because data changes constantly. A <strong>Template</strong> is an HTML file containing placeholders and logical syntax. Flask uses a template rendering engine called <strong>Jinja2</strong>.</p>
+            
+            <p>In this project, templates allow us to perform dynamic layout computations directly in HTML, like looping through a list of sticky notes or conditionally drawing colored status badges:</p>
+            <div class="docs-code">
+&lt;!-- Jinja2 Syntax Example --&gt;
+{% raw %}{% if goals %}
+    {% for goal in goals %}
+        &lt;div class="item-card"&gt;
+            &lt;h3&gt;{{ goal.title }}&lt;/h3&gt;
+            &lt;span&gt;Category: {{ goal.category }}&lt;/span&gt;
+        &lt;/div&gt;
+    {% endfor %}
+{% else %}
+    &lt;p&gt;No active goals found!&lt;/p&gt;
+{% endif %}{% endraw %}
+            </div>
+            <p>We also use <strong>Template Inheritance</strong> (<code>{% raw %}{% extends 'base.html' %}{% endraw %}</code>). This allows us to write the navigation menu, logo, footer, and styling links only once in <code>base.html</code>, and inherit them across all other views.</p>
+        </section>
+
+        <!-- Section 4: JSON Database & GPA Math -->
+        <section id="understanding-json" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
+            <h2>4. What a JSON Database Means & GPA Math</h2>
+            <p>Traditional web applications use relational databases (like SQLite, MySQL, or PostgreSQL) which require writing SQL queries. To keep this project beginner-friendly and lightweight, we use a <strong>JSON file database</strong>.</p>
+            
+            <p>JSON stands for <em>JavaScript Object Notation</em>. It is a text file layout that represents data in a structured key-value format. The text format maps directly to Python's built-in <strong>lists</strong> and <strong>dictionaries</strong>. When the app starts, we open the text files using Python's <code>json.load()</code> function, modify the lists, and save the updated contents back to disk using <code>json.dump()</code>.</p>
+            
+            <p>For example, here is how a marks entry is formatted in <code>data/marks.json</code>. Notice how the backend automatically computes the <code>total</code> score and translates it into a letter <code>grade</code> and numeric <code>gp</code> (Grade Point):</p>
+            <div class="docs-code">
+# Standard academic record stored in data/marks.json:
+{
+    "id": "a49bb2d3-1349-411a-8bb7-e54bf83141f2",
+    "course_name": "Database Management Systems",
+    "semester": 3,
+    "credits": 4,
+    "mtt1": 18.5,
+    "mtt2": 17.0,
+    "ica": 19.0,
+    "term_end": 35.5,
+    "total": 90.0,
+    "grade": "O",
+    "gp": 10
+}
+            </div>
+            <p><strong>The GPA Mathematics:</strong></p>
+            <ul class="docs-bullet">
+                <li><strong>Total Marks:</strong> Sum of MTT 1 (0-10) + MTT 2 (0-10) + ICA (0-30) + Term End scaled to 50 (TEE * 0.5) = Total (0-100).</li>
+                <li><strong>Grade Point (GP):</strong> Calculated on a 10-point scale where scores &ge; 90 earn 10 GP (O), &ge; 80 earn 9 GP (A+), &ge; 70 earn 8 GP (A), and so forth. Scores &lt; 40 earn 0 GP (F).</li>
+                <li><strong>Semester SGPA:</strong> Calculated as: <code>Sum(Course GP * Course Credits) / Sum(Course Credits)</code> for that semester's courses.</li>
+                <li><strong>Cumulative CGPA:</strong> The credit-weighted average of all courses across all recorded semesters.</li>
+            </ul>
+        </section>
+
+        <!-- Section 5: Form Handling -->
+        <section id="understanding-forms" class="glass" style="padding: 2rem; margin-bottom: 2rem;">
+            <h2>5. How Form Data is Processed & Saved</h2>
+            <p>When you click a submit button on any form (like adding a resource or logging hours), the browser packs up the inputs and sends them to the Flask server via an HTTP <strong>POST</strong> request.</p>
+            
+            <p>The backend performs the following steps to process the form submission:</p>
+            <ul class="docs-bullet">
+                <li><strong>Route Interception:</strong> The route configuration permits both <code>GET</code> (viewing) and <code>POST</code> (saving) methods.</li>
+                <li><strong>Form Reading:</strong> Flask extracts the input text utilizing the <code>request.form.get('input_name')</code> property.</li>
+                <li><strong>UUID & Stamping:</strong> Python attaches a newly generated <code>uuid.uuid4()</code> string identifier and handles status defaults.</li>
+                <li><strong>File Append:</strong> We load the current list from the JSON file, append the new item dictionary to it, and write the updated list back to the filesystem.</li>
+                <li><strong>Session Flash Notification:</strong> A message is saved to the session indicating successful creation, and the browser is redirected to refresh the list views.</li>
+            </ul>
+        </section>
+    </div>
+</div>
+
+<script>
+    // Smooth scrolling active state update for docs navigation
+    document.addEventListener('DOMContentLoaded', () => {
+        const links = document.querySelectorAll('.docs-nav a');
+        const sections = document.querySelectorAll('.docs-content section');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 120)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            links.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

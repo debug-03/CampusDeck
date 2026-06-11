@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Quick Notes{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Quick Notes</h1>
+        <p style="color: var(--text-muted);">Jot down quick thoughts, formulas, lists, or details on sticky notes.</p>
+    </div>
+</div>
+
+<!-- Add Note Form -->
+<section class="form-section glass">
+    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-pen-to-square" style="color: var(--accent-primary);"></i> Write Sticky Note</h2>
+    <form action="{{ url_for('notes') }}" method="POST">
+        <div class="form-grid">
+            <!-- Note Title -->
+            <div class="form-group">
+                <label for="title">Note Title *</label>
+                <input type="text" id="title" name="title" class="form-input" placeholder="e.g. Formula Sheet" required>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+                <label for="category">Category *</label>
+                <input type="text" id="category" name="category" class="form-input" placeholder="e.g. Calculus / Personal" required>
+            </div>
+
+            <!-- Sticky Note Color Picker -->
+            <div class="form-group">
+                <label>Choose Sticky Color</label>
+                <div class="color-picker">
+                    <input type="radio" id="col-yellow" name="color" value="yellow" class="color-radio" checked>
+                    <label for="col-yellow" class="color-label yellow" title="Yellow"></label>
+
+                    <input type="radio" id="col-blue" name="color" value="blue" class="color-radio">
+                    <label for="col-blue" class="color-label blue" title="Blue"></label>
+
+                    <input type="radio" id="col-pink" name="color" value="pink" class="color-radio">
+                    <label for="col-pink" class="color-label pink" title="Pink"></label>
+
+                    <input type="radio" id="col-green" name="color" value="green" class="color-radio">
+                    <label for="col-green" class="color-label green" title="Green"></label>
+
+                    <input type="radio" id="col-purple" name="color" value="purple" class="color-radio">
+                    <label for="col-purple" class="color-label purple" title="Purple"></label>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="form-group form-group-full">
+                <label for="content">Note Content *</label>
+                <textarea id="content" name="content" class="form-textarea" placeholder="Type your notes here..." required></textarea>
+            </div>
+        </div>
+
+        <div style="text-align: right;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-thumbtack"></i> Post Note
+            </button>
+        </div>
+    </form>
+</section>
+
+<!-- Notes Board Canvas -->
+<section class="notes-canvas">
+    {% if notes %}
+        {% for note in notes %}
+            <!-- The classes e.g. yellow, blue determine the CSS color styling -->
+            <div class="sticky-note {{ note.color }}">
+                <span class="note-cat">{{ note.category }}</span>
+                <h3 class="note-title">{{ note.title }}</h3>
+                <div class="note-body">
+                    {{ note.content }}
+                </div>
+                <div class="note-footer">
+                    <span>{{ note.created_at }}</span>
+                    <!-- Delete Note Action Form -->
+                    <form action="{{ url_for('delete_note', note_id=note.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn-delete-note" title="Discard note">
+                            <i class="fas fa-trash-can"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="glass" style="grid-column: 1 / -1; padding: 4rem; text-align: center; color: var(--text-muted);">
+            <i class="fas fa-sticky-note" style="font-size: 4rem; opacity: 0.15; margin-bottom: 1rem; display: block;"></i>
+            <p>Your notes canvas is clear. Stick your first reminder!</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

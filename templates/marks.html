@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% block title %}Marks & GPA Calculator{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Marks Tracker & GPA</h1>
+        <p style="color: var(--text-muted);">Manage your academic records, input test results, and compute semester SGPAs & CGPA.</p>
+    </div>
+</div>
+
+<!-- GPA Metrics Showcase Card -->
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+    <!-- CGPA Indicator Card -->
+    <div class="stat-card glass" style="grid-column: 1 / -1; padding: 2rem; justify-content: space-between; align-items: center; background: linear-gradient(135deg, rgba(108, 93, 211, 0.1) 0%, rgba(255, 117, 143, 0.05) 100%); border-top: 5px solid var(--accent-primary);">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div class="stat-icon purple" style="width: 4.5rem; height: 4.5rem; font-size: 2rem; background: rgba(108, 93, 211, 0.15); color: var(--accent-primary);">
+                <i class="fas fa-award"></i>
+            </div>
+            <div>
+                <h2 style="font-size: 1.6rem; font-family: 'Outfit', sans-serif;">Cumulative Grade Point Average (CGPA)</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem;">Calculated dynamically as a credit-weighted average of all semester scores.</p>
+            </div>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 3.5rem; font-weight: 800; font-family: 'Outfit', sans-serif; background: linear-gradient(135deg, var(--text-white) 30%, var(--accent-secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;">
+                {{ "%.2f"|format(cgpa) }}
+            </div>
+            <span class="badge badge-completed" style="margin-top: 0.5rem; font-size: 0.8rem; background: rgba(32, 201, 151, 0.12); color: var(--accent-success); border-color: rgba(32, 201, 151, 0.2);"><i class="fas fa-star"></i> out of 10.0</span>
+        </div>
+    </div>
+</section>
+
+<!-- Add Course Marks Form -->
+<section class="form-section glass" style="margin-bottom: 3rem;">
+    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-primary);"></i> Record Course Marks</h2>
+    <form action="{{ url_for('marks') }}" method="POST">
+        <div class="form-grid">
+            <!-- Course Name -->
+            <div class="form-group form-group-full">
+                <label for="course_name">Course Name / Code *</label>
+                <input type="text" id="course_name" name="course_name" class="form-input" placeholder="e.g. Advanced Calculus (MATH-301)" required>
+            </div>
+
+            <!-- Semester -->
+            <div class="form-group">
+                <label for="semester">Semester *</label>
+                <select id="semester" name="semester" class="form-select" required>
+                    <option value="" disabled selected>Select semester...</option>
+                    {% for sem in range(1, 9) %}
+                        <option value="{{ sem }}">Semester {{ sem }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Course Credits -->
+            <div class="form-group">
+                <label for="credits">Credits *</label>
+                <input type="number" min="1" max="10" id="credits" name="credits" class="form-input" placeholder="e.g. 4" required>
+            </div>
+
+            <!-- MTT 1 -->
+            <div class="form-group">
+                <label for="mtt1">MTT 1 Marks (0 - 10) *</label>
+                <input type="number" step="0.1" min="0" max="10" id="mtt1" name="mtt1" class="form-input" placeholder="Max 10" required>
+            </div>
+
+            <!-- MTT 2 -->
+            <div class="form-group">
+                <label for="mtt2">MTT 2 Marks (0 - 10) *</label>
+                <input type="number" step="0.1" min="0" max="10" id="mtt2" name="mtt2" class="form-input" placeholder="Max 10" required>
+            </div>
+
+            <!-- ICA -->
+            <div class="form-group">
+                <label for="ica">ICA Marks (0 - 30) *</label>
+                <input type="number" step="0.1" min="0" max="30" id="ica" name="ica" class="form-input" placeholder="Max 30" required>
+            </div>
+
+            <!-- Term End -->
+            <div class="form-group">
+                <label for="term_end">Term End Marks TEE (0 - 100) *</label>
+                <input type="number" step="0.1" min="0" max="100" id="term_end" name="term_end" class="form-input" placeholder="Max 100 (scales to 50)" required>
+            </div>
+        </div>
+
+        <div style="text-align: right;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Save Marks Record
+            </button>
+        </div>
+    </form>
+</section>
+
+<!-- Semester Grids -->
+<section style="display: flex; flex-direction: column; gap: 2.5rem; margin-bottom: 4rem;">
+    {% set ns = namespace(has_any=false) %}
+    
+    {% for sem in range(1, 9) %}
+        {% set sem_data = grouped_data[sem] %}
+        {% if sem_data.courses %}
+            {% set ns.has_any = true %}
+            <div class="glass" style="padding: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 1rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2 style="font-size: 1.5rem; font-family: 'Outfit', sans-serif;"><i class="fas fa-book" style="color: var(--accent-secondary);"></i> Semester {{ sem }}</h2>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <span class="badge badge-saved" style="font-size: 0.85rem; padding: 0.35rem 0.85rem;"><i class="fas fa-coins"></i> Credits: {{ sem_data.total_credits }}</span>
+                        <span class="badge badge-completed" style="font-size: 0.85rem; padding: 0.35rem 0.85rem; background: rgba(16, 185, 129, 0.2);"><i class="fas fa-graduation-cap"></i> Semester SGPA: {{ "%.2f"|format(sem_data.sgpa) }}</span>
+                    </div>
+                </div>
+
+                <!-- Table Grid -->
+                <div style="overflow-x: auto;">
+                    <table class="marks-table" style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid rgba(255,255,255,0.06); text-align: left;">
+                                <th style="padding: 0.8rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 700;">Course Name / Code</th>
+                                <th style="padding: 0.8rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-align: center;">Credits</th>
+                                <th style="padding: 0.8rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-align: center;">MTT 1 (10)</th>
+                                <th style="padding: 0.8rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-align: center;">MTT 2 (10)</th>
+                                <th style="padding: 0.8rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-align: center;">ICA (30)</th>
+                                <th style="padding: 0.8rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-align: center;">TEE (100)</th>
+                                <th style="padding: 0.8rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-align: center;">Total (100)</th>
+                                <th style="padding: 0.8rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-align: center;">Grade</th>
+                                <th style="padding: 0.8rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-align: center;">GP</th>
+                                <th style="padding: 0.8rem; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-align: center;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course in sem_data.courses %}
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                                    <td style="padding: 0.8rem; font-weight: 600;">{{ course.course_name }}</td>
+                                    <td style="padding: 0.8rem; text-align: center;">{{ course.credits }}</td>
+                                    <td style="padding: 0.8rem; text-align: center; color: var(--text-muted);">{{ course.mtt1 }}</td>
+                                    <td style="padding: 0.8rem; text-align: center; color: var(--text-muted);">{{ course.mtt2 }}</td>
+                                    <td style="padding: 0.8rem; text-align: center; color: var(--text-muted);">{{ course.ica }}</td>
+                                    <td style="padding: 0.8rem; text-align: center; color: var(--text-muted);">{{ course.term_end }} <span style="font-size: 0.75rem; opacity: 0.7;" title="Scaled to 50">({{ "%.1f"|format(course.term_end * 0.5) }})</span></td>
+                                    <td style="padding: 0.8rem; text-align: center; font-weight: 700; color: var(--accent-info);">{{ course.total }}</td>
+                                    <td style="padding: 0.8rem; text-align: center;">
+                                        {% if course.grade == 'F' %}
+                                            <span class="badge badge-completed" style="background: rgba(239, 68, 68, 0.15); color: var(--accent-danger);">{{ course.grade }}</span>
+                                        {% else %}
+                                            <span class="badge badge-completed">{{ course.grade }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="padding: 0.8rem; text-align: center; font-weight: 600;">{{ course.gp }}</td>
+                                    <td style="padding: 0.8rem; text-align: center;">
+                                        <!-- Delete Record Form -->
+                                        <form action="{{ url_for('delete_marks', course_id=course.id) }}" method="POST" style="display:inline;">
+                                            <button type="submit" class="btn btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" title="Delete this record">
+                                                <i class="fas fa-trash-can"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    {% if not ns.has_any %}
+        <div class="glass" style="padding: 4rem; text-align: center; color: var(--text-muted);">
+            <i class="fas fa-graduation-cap" style="font-size: 4rem; opacity: 0.15; margin-bottom: 1rem; display: block;"></i>
+            <p>No marks records saved yet. Fill out the form above to initialize your GPA tracker sheets!</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

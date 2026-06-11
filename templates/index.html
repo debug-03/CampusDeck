@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <h1 class="animate-fade-in">Your Academic Space,<br><span style="background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Elevated.</span></h1>
+    <p class="animate-fade-in delay-1">CampusDeck organizes your studies, goals, notes, and GPA in a clean, interactive Bento Workspace designed specifically for college life.</p>
+    
+    <div class="hero-cta animate-fade-in delay-2">
+        {% if session.get('user_id') %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                <i class="fas fa-chart-line"></i> Open Dashboard
+            </a>
+        {% else %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Get Started Free
+            </a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        {% endif %}
+        <a href="{{ url_for('how_it_works') }}" class="btn btn-secondary">
+            <i class="fas fa-circle-question"></i> See Guide
+        </a>
+    </div>
+</section>
+
+<!-- Features Overview Bento Grid -->
+<section class="features-preview animate-fade-in delay-3">
+    <!-- Card 1: Goals -->
+    <div class="feature-item glass glass-interactive" style="border-top-color: var(--accent-primary);">
+        <div class="feature-icon-wrapper" style="background: rgba(108, 93, 211, 0.1); color: var(--accent-primary);">
+            <i class="fas fa-bullseye"></i>
+        </div>
+        <h3>Academic Goals</h3>
+        <p>Stay on track. Define milestones, select fields, assign deadlines, and toggle statuses dynamically.</p>
+    </div>
+
+    <!-- Card 2: Resource Vault -->
+    <div class="feature-item glass glass-interactive" style="border-top-color: var(--accent-secondary);">
+        <div class="feature-icon-wrapper" style="background: rgba(255, 117, 143, 0.1); color: var(--accent-secondary);">
+            <i class="fas fa-vault"></i>
+        </div>
+        <h3>Resource Vault</h3>
+        <p>Save notes, slide decks, research links, and code files. Access your study bank instantly in one place.</p>
+    </div>
+
+    <!-- Card 3: Opportunities -->
+    <div class="feature-item glass glass-interactive" style="border-top-color: var(--accent-warning);">
+        <div class="feature-icon-wrapper" style="background: rgba(255, 183, 3, 0.1); color: var(--accent-warning);">
+            <i class="fas fa-briefcase"></i>
+        </div>
+        <h3>Opportunities</h3>
+        <p>Track hackathons, internship applications, and competitions. Live days-left counters keep deadlines close.</p>
+    </div>
+
+    <!-- Card 4: Study Log -->
+    <div class="feature-item glass glass-interactive" style="border-top-color: var(--accent-success);">
+        <div class="feature-icon-wrapper" style="background: rgba(32, 201, 151, 0.1); color: var(--accent-success);">
+            <i class="fas fa-clock"></i>
+        </div>
+        <h3>Study Log</h3>
+        <p>Log hours, map sessions to courses, track total progress, and visualize accomplishments on a timeline.</p>
+    </div>
+
+    <!-- Card 5: Sticky Notes -->
+    <div class="feature-item glass glass-interactive" style="border-top-color: var(--accent-info);">
+        <div class="feature-icon-wrapper" style="background: rgba(14, 165, 233, 0.1); color: var(--accent-info);">
+            <i class="fas fa-sticky-note"></i>
+        </div>
+        <h3>Cursive Notes</h3>
+        <p>Draft fast reminders, math formulas, and study drafts on a whiteboard canvas with handwritten paper cards.</p>
+    </div>
+
+    <!-- Card 6: Academic Tracker -->
+    <div class="feature-item glass glass-interactive" style="border-top-color: var(--accent-primary);">
+        <div class="feature-icon-wrapper" style="background: rgba(108, 93, 211, 0.1); color: var(--accent-primary);">
+            <i class="fas fa-award"></i>
+        </div>
+        <h3>GPA / Marks Tracker</h3>
+        <p>Track marks (MTTs, ICA, Term End) scaled out of 100. Computes SGPA and CGPA in real-time as you log courses.</p>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Opportunity Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Opportunity Tracker</h1>
+        <p style="color: var(--text-muted);">Track internships, competitions, scholarships, and hackathons with interactive countdowns.</p>
+    </div>
+</div>
+
+<!-- Add Opportunity Form -->
+<section class="form-section glass">
+    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-primary);"></i> Track New Opportunity</h2>
+    <form action="{{ url_for('opportunities') }}" method="POST">
+        <div class="form-grid">
+            <!-- Opportunity Name -->
+            <div class="form-group form-group-full">
+                <label for="name">Opportunity Name *</label>
+                <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Google STEP Internship 2026" required>
+            </div>
+
+            <!-- Opportunity Type selection -->
+            <div class="form-group">
+                <label for="type">Opportunity Type *</label>
+                <select id="type" name="type" class="form-select" required>
+                    <option value="" disabled selected>Select type...</option>
+                    <option value="Internship">Internship</option>
+                    <option value="Hackathon">Hackathon</option>
+                    <option value="Workshop">Workshop</option>
+                    <option value="Competition">Competition</option>
+                    <option value="Scholarship">Scholarship</option>
+                </select>
+            </div>
+
+            <!-- Status selection -->
+            <div class="form-group">
+                <label for="status">Initial Status</label>
+                <select id="status" name="status" class="form-select">
+                    <option value="Saved" selected>Saved</option>
+                    <option value="Applied">Applied</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+
+            <!-- Deadline Date -->
+            <div class="form-group">
+                <label for="deadline">Deadline *</label>
+                <input type="date" id="deadline" name="deadline" class="form-input" required>
+            </div>
+
+            <!-- Optional Link -->
+            <div class="form-group form-group-full">
+                <label for="link">Application Link (Optional)</label>
+                <input type="text" id="link" name="link" class="form-input" placeholder="e.g. careers.google.com/jobs/...">
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group form-group-full">
+                <label for="notes">Brief Notes / Requirements</label>
+                <textarea id="notes" name="notes" class="form-textarea" placeholder="Add eligibility requirements, referral status, resume version used, or checklist items."></textarea>
+            </div>
+        </div>
+
+        <div style="text-align: right;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Track Opportunity
+            </button>
+        </div>
+    </form>
+</section>
+
+<!-- Opportunity Tracker Grid -->
+<section class="cards-grid">
+    {% if opportunities %}
+        {% for opp in opportunities %}
+            <!-- The data-deadline attribute is caught by script.js to dynamically compute countdown status classes -->
+            <div class="item-card glass glass-interactive opportunity-card" data-deadline="{{ opp.deadline }}">
+                <div class="card-header">
+                    <div>
+                        <span class="card-subject">{{ opp.type }}</span>
+                        <h3 class="card-title">{{ opp.name }}</h3>
+                    </div>
+                    <div>
+                        <!-- Days left element filled by client-side Javascript -->
+                        <span class="days-left">...</span>
+                    </div>
+                </div>
+
+                <p class="card-desc">{{ opp.notes if opp.notes else "No notes written." }}</p>
+
+                <div style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Status:</span>
+                    {% if opp.status == 'Completed' %}
+                        <span class="badge badge-completed"><i class="fas fa-circle-check"></i> Completed</span>
+                    {% elif opp.status == 'Applied' %}
+                        <span class="badge badge-applied"><i class="fas fa-paper-plane"></i> Applied</span>
+                    {% else %}
+                        <span class="badge badge-saved"><i class="fas fa-bookmark"></i> Saved</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer">
+                    <span class="card-date">
+                        <i class="fas fa-calendar-alt"></i> Deadline: {{ opp.deadline }}
+                    </span>
+                    
+                    <div class="card-actions">
+                        {% if opp.link %}
+                            <a href="{{ opp.link }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                                <i class="fas fa-arrow-up-right-from-square"></i> Apply
+                            </a>
+                        {% endif %}
+                        
+                        <!-- Delete Form -->
+                        <form action="{{ url_for('delete_opportunity', opp_id=opp.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger" title="Remove opportunity">
+                                <i class="fas fa-trash-can"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="glass" style="grid-column: 1 / -1; padding: 4rem; text-align: center; color: var(--text-muted);">
+            <i class="fas fa-briefcase" style="font-size: 4rem; opacity: 0.15; margin-bottom: 1rem; display: block;"></i>
+            <p>No active opportunities cataloged. Start tracing career steps!</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

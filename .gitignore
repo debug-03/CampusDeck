@@ -1,0 +1,23 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE / Operating System files
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Local database files containing user data
+data/*.json

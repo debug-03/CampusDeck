@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Study Goals{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Study Goals</h1>
+        <p style="color: var(--text-muted);">Define, track, and accomplish your academic milestones.</p>
+    </div>
+</div>
+
+<!-- Add Goal Form -->
+<section class="form-section glass">
+    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-primary);"></i> Create New Study Goal</h2>
+    <form action="{{ url_for('goals') }}" method="POST">
+        <div class="form-grid">
+            <!-- Goal Title -->
+            <div class="form-group form-group-full">
+                <label for="title">Goal Title *</label>
+                <input type="text" id="title" name="title" class="form-input" placeholder="e.g. Complete Calculus Assignment 3" required>
+            </div>
+            
+            <!-- Category -->
+            <div class="form-group">
+                <label for="category">Subject / Category *</label>
+                <input type="text" id="category" name="category" class="form-input" placeholder="e.g. Mathematics" required>
+            </div>
+
+            <!-- Target Date -->
+            <div class="form-group">
+                <label for="target_date">Target Date *</label>
+                <input type="date" id="target_date" name="target_date" class="form-input" required>
+            </div>
+
+            <!-- Status Selection -->
+            <div class="form-group">
+                <label for="status">Initial Status</label>
+                <select id="status" name="status" class="form-select">
+                    <option value="Not Started" selected>Not Started</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+        </div>
+        
+        <div style="text-align: right;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Goal
+            </button>
+        </div>
+    </form>
+</section>
+
+<!-- Active Goals Cards Grid -->
+<section class="cards-grid">
+    {% if goals %}
+        {% for goal in goals %}
+            <div class="item-card glass glass-interactive {% if goal.status == 'Completed' %}completed-border{% endif %}">
+                <span class="card-subject">{{ goal.category }}</span>
+                <h3 class="card-title">{{ goal.title }}</h3>
+                
+                <div style="margin-top: 1rem; margin-bottom: 1.5rem;">
+                    <!-- Status Badge -->
+                    {% if goal.status == 'Completed' %}
+                        <span class="badge badge-completed"><i class="fas fa-circle-check"></i> Completed</span>
+                    {% elif goal.status == 'In Progress' %}
+                        <span class="badge badge-in-progress"><i class="fas fa-circle-notch fa-spin"></i> In Progress</span>
+                    {% else %}
+                        <span class="badge badge-not-started"><i class="fas fa-circle"></i> Not Started</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer">
+                    <span class="card-date">
+                        <i class="fas fa-calendar-check"></i> Target: {{ goal.target_date }}
+                    </span>
+                    
+                    <div class="card-actions">
+                        <!-- Toggle Status Button -->
+                        <form action="{{ url_for('toggle_goal', goal_id=goal.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" title="Change status">
+                                <i class="fas fa-sync"></i> Toggle
+                            </button>
+                        </form>
+                        
+                        <!-- Delete Button -->
+                        <form action="{{ url_for('delete_goal', goal_id=goal.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger" title="Delete goal">
+                                <i class="fas fa-trash-can"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="glass" style="grid-column: 1 / -1; padding: 4rem; text-align: center; color: var(--text-muted);">
+            <i class="fas fa-bullseye" style="font-size: 4rem; opacity: 0.15; margin-bottom: 1rem; display: block;"></i>
+            <p>No study goals created yet. Set your targets to stay focused!</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

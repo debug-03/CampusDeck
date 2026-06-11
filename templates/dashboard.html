@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Dashboard Heading -->
+<div class="page-header">
+    <div>
+        <h1>Workspace Home</h1>
+        <p style="color: var(--text-muted);">Manage your college roadmap, logs, and metrics in one place.</p>
+    </div>
+    <div>
+        <a href="{{ url_for('how_it_works') }}" class="btn btn-secondary">
+            <i class="fas fa-circle-question"></i> Guidebook
+        </a>
+    </div>
+</div>
+
+<!-- Bento Grid Layout -->
+<div class="bento-container">
+    
+    <!-- Box 1: Welcome & Live Clock (Spans 2 Columns) -->
+    <div class="bento-card glass bento-col-2 bento-welcome-card" style="border-top: 5px solid var(--accent-primary);">
+        <h2 id="dashboard-greeting" data-username="{{ session.get('user_name') }}">Hello, Student! 👋</h2>
+        <p style="color: var(--text-muted); font-size: 1.05rem; margin-top: 0.5rem; max-width: 500px;">
+            Welcome back to CampusDeck. Your custom academic command center is synchronized and ready for action.
+        </p>
+        <div>
+            <span id="dashboard-clock" class="bento-welcome-time">⏰ --:--:-- --</span>
+        </div>
+    </div>
+
+    <!-- Box 2: CGPA Metric Card (1x1) -->
+    <div class="bento-card glass" style="border-top: 5px solid var(--accent-secondary);">
+        <div class="bento-gpa-container">
+            <div class="bento-gpa-label">Current CGPA</div>
+            <div class="bento-gpa-number">{{ "%.2f"|format(stats.cgpa) }}</div>
+            
+            <div class="bento-gpa-bar-wrapper">
+                <div class="gpa-progress-track">
+                    <div id="dashboard-gpa-bar" class="gpa-progress-bar" data-gpa="{{ stats.cgpa }}"></div>
+                </div>
+            </div>
+            
+            <div class="gpa-badge-pill">
+                {% if stats.cgpa >= 9.0 %}
+                    Academic Elite 👑
+                {% elif stats.cgpa >= 8.0 %}
+                    First Class Dist. 🚀
+                {% elif stats.cgpa >= 7.0 %}
+                    First Class Honors ⭐
+                {% elif stats.cgpa > 0.0 %}
+                    Passing GPA 👍
+                {% else %}
+                    No marks logged yet 📝
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Box 3: Study Hours Target (1x1) -->
+    <div class="bento-card glass" style="border-top: 5px solid var(--accent-success);">
+        <span class="bento-card-title"><i class="fas fa-clock" style="color: var(--accent-success);"></i> Study Hours Tracker</span>
+        <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.4; margin-bottom: 0.5rem;">
+            Track your weekly hard work and study logs. Target: 20 hours per week.
+        </p>
+        
+        <div class="bento-study-target">
+            <div class="bento-study-meta">
+                <span>Total Logged</span>
+                <span>{{ "%.1f"|format(stats.total_hours) }}h / 20h</span>
+            </div>
+            <div class="study-progress-track">
+                <div id="dashboard-study-bar" class="study-progress-bar" data-hours="{{ stats.total_hours }}" data-target="20.0"></div>
+            </div>
+            <div class="study-motivate-text">
+                {% if stats.total_hours >= 20.0 %}
+                    <i class="fas fa-circle-check" style="color: var(--accent-success);"></i> Weekly target achieved! 🔥
+                {% elif stats.total_hours >= 10.0 %}
+                    <i class="fas fa-fire" style="color: var(--accent-warning);"></i> Over halfway there! Keep going!
+                {% else %}
+                    <i class="fas fa-bolt" style="color: var(--accent-primary);"></i> Keep studying to fill the meter!
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Box 4: Active Counters Summary (1x1) -->
+    <div class="bento-card glass" style="border-top: 5px solid var(--accent-info);">
+        <span class="bento-card-title"><i class="fas fa-chart-pie" style="color: var(--accent-info);"></i> Workspace Counters</span>
+        <div class="bento-list" style="margin-top: 0.5rem;">
+            <div class="bento-list-item">
+                <span style="font-weight: 700;"><i class="fas fa-bullseye" style="color: var(--accent-primary); margin-right: 0.5rem;"></i> Active Goals</span>
+                <span class="badge badge-saved">{{ stats.total_goals }} Active</span>
+            </div>
+            <div class="bento-list-item">
+                <span style="font-weight: 700;"><i class="fas fa-vault" style="color: var(--accent-secondary); margin-right: 0.5rem;"></i> Saved Resources</span>
+                <span class="badge badge-completed">{{ stats.total_resources }} Items</span>
+            </div>
+            <div class="bento-list-item">
+                <span style="font-weight: 700;"><i class="fas fa-briefcase" style="color: var(--accent-warning); margin-right: 0.5rem;"></i> Opportunities</span>
+                <span class="badge badge-applied">{{ stats.total_opportunities }} Tracked</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Box 5: Recent Study Logs (Spans 2 Columns, 1 Row) -->
+    <div class="bento-card glass bento-col-2" style="border-top: 5px solid var(--accent-primary);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <span class="bento-card-title" style="margin-bottom: 0;"><i class="fas fa-clock" style="color: var(--accent-primary);"></i> Recent Study Logs</span>
+            <a href="{{ url_for('study_log') }}" class="btn btn-secondary" style="padding: 0.45rem 1.1rem; font-size: 0.82rem;">
+                Logs Canvas <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        {% if recent_logs %}
+            <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                {% for log in recent_logs %}
+                    <div style="padding: 1rem 1.25rem; border-radius: var(--radius-sm); background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.35); display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: var(--transition-smooth);" class="glass-interactive">
+                        <div>
+                            <span class="card-subject" style="margin-bottom: 0.15rem;">{{ log.subject }}</span>
+                            <strong style="font-size: 0.95rem; color: var(--text-white);">{{ log.content|truncate(65) }}</strong>
+                            <div class="card-date" style="margin-top: 0.35rem; font-size: 0.78rem;">
+                                <i class="fas fa-calendar-alt"></i> {{ log.date }}
+                            </div>
+                        </div>
+                        <div style="background: rgba(108, 93, 211, 0.12); color: var(--accent-primary); padding: 0.35rem 0.85rem; border-radius: 50px; font-size: 0.82rem; font-weight: 800; white-space: nowrap;">
+                            {{ log.hours }} Hours
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted); flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <i class="fas fa-book-open" style="font-size: 2.5rem; opacity: 0.2; margin-bottom: 0.75rem;"></i>
+                <p style="font-size: 0.9rem;">No study logs recorded. Document your study milestones!</p>
+                <a href="{{ url_for('study_log') }}" class="btn btn-primary" style="margin-top: 1.25rem; padding: 0.45rem 1.1rem; font-size: 0.82rem;">
+                    Log First Session
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Box 6: Recent Notes Workspace (1x1) -->
+    <div class="bento-card glass" style="border-top: 5px solid var(--accent-warning); justify-content: space-between;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <span class="bento-card-title" style="margin-bottom: 0;"><i class="fas fa-sticky-note" style="color: var(--accent-warning);"></i> Recent Notes</span>
+            <a href="{{ url_for('notes') }}" class="btn btn-secondary" style="padding: 0.45rem 1.1rem; font-size: 0.82rem;">
+                Note Board <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        {% if recent_notes %}
+            <div style="display: flex; flex-direction: column; gap: 0.85rem; flex-grow: 1; justify-content: center;">
+                {% for note in recent_notes %}
+                    <div class="sticky-note {{ note.color }}" style="aspect-ratio: auto; min-height: 90px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: var(--radius-sm); padding: 0.85rem; --rotation: -1deg; border: 1px solid rgba(255,255,255,0.45);">
+                        <span class="note-cat" style="font-size: 0.6rem; margin-bottom: 0.1rem;">{{ note.category }}</span>
+                        <h4 class="note-title" style="font-size: 1.1rem; margin-bottom: 0.15rem; font-family: 'Caveat', cursive;">{{ note.title }}</h4>
+                        <p class="note-body" style="font-size: 1.15rem; margin-bottom: 0.25rem; line-height: 1.15; font-family: 'Caveat', cursive;">{{ note.content|truncate(45) }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted); flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <i class="fas fa-pen-fancy" style="font-size: 2.5rem; opacity: 0.2; margin-bottom: 0.75rem;"></i>
+                <p style="font-size: 0.9rem;">Notebook is currently empty.</p>
+                <a href="{{ url_for('notes') }}" class="btn btn-primary" style="margin-top: 1.25rem; padding: 0.45rem 1.1rem; font-size: 0.82rem;">
+                    Write Quick Note
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
