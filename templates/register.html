@@ -1,70 +1,60 @@
-{# 
-   Jinja2 Template Inheritance:
-   Loads the main outline skeleton defined in 'base.html'.
-   We override specific title and content blocks for this registration route.
-#}
 {% extends 'base.html' %}
 
-{# Title Block: Sets 'Create Account - CampusDeck' in webpage tab header #}
 {% block title %}Create Account{% endblock %}
 
-{# Content Block: Wraps the registration panel widgets #}
 {% block content %}
-<!-- Background Animated Shapes (Floating physics defined in style.css) -->
-<div class="auth-bg-shapes">
-    <div class="auth-shape auth-shape-1"></div>
-    <div class="auth-shape auth-shape-2"></div>
-    <div class="auth-shape auth-shape-3"></div>
-    <div class="auth-shape auth-shape-4"></div>
-    <div class="auth-shape auth-shape-5"></div>
-</div>
-
-<div style="max-width: 480px; margin: 3rem auto; padding: 0 1rem;" class="animate-fade-in">
-    <!-- Glassmorphic Bento Registration Card container -->
-    <div class="glass" style="padding: 2.5rem; text-align: center; border-top: 5px solid var(--accent-secondary);">
-        <i class="fas fa-user-plus" style="font-size: 3rem; color: var(--accent-secondary); margin-bottom: 1.25rem;"></i>
-        <h1 style="font-size: 2rem; margin-bottom: 0.5rem; text-transform: uppercase;">Create Account</h1>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">Register for your personal CampusDeck profile.</p>
-        
-        {#
-           Form Action URL Mapping:
-           'url_for' dynamically resolves route name 'register' to '/register'.
-           'method="POST"' passes details to register form handling in app.py when submitted.
-        #}
-        <form action="{{ url_for('register') }}" method="POST" style="text-align: left;">
-            <!-- Name -->
-            <div class="form-group" style="margin-bottom: 1.25rem;">
-                <label for="name">Full Name</label>
-                <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Alex Johnson" required>
-            </div>
-
-            <!-- Email -->
-            <div class="form-group" style="margin-bottom: 1.25rem;">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" class="form-input" placeholder="student@university.edu" required>
-            </div>
+<div class="auth-split-container animate-fade-up">
+    <!-- Left side info -->
+    <div class="auth-split-info">
+        <h1>CampusDeck</h1>
+        <p>Your college work, organized in one place.</p>
+        <ul class="auth-features-list">
+            <li><i class="fa-solid fa-bullseye" style="color: var(--accent-primary);"></i> Goals</li>
+            <li><i class="fa-solid fa-bookmark" style="color: var(--accent-success);"></i> Resources</li>
+            <li><i class="fa-solid fa-briefcase" style="color: var(--accent-warning);"></i> Opportunities</li>
+            <li><i class="fa-solid fa-note-sticky" style="color: #58a6ff;"></i> Notes</li>
+        </ul>
+    </div>
+    
+    <!-- Right side form -->
+    <div class="auth-split-form-wrapper">
+        <div class="auth-panel-form">
+            <h2 style="font-size: 1.25rem; font-weight: 500; margin-bottom: 1.5rem; text-align: center;">Create account</h2>
             
-            <!-- Password (Minimum 6 characters constraint checked client-side via HTML attributes) -->
-            <div class="form-group" style="margin-bottom: 1.25rem;">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="form-input" placeholder="•••••••• (Min 6 characters)" minlength="6" required>
-            </div>
+            <form action="{{ url_for('register') }}" method="POST">
+                <!-- Name -->
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Alex Johnson" required>
+                </div>
 
-            <!-- Confirm Password (Validates equality server-side in app.py) -->
-            <div class="form-group" style="margin-bottom: 2rem;">
-                <label for="confirm_password">Confirm Password</label>
-                <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="••••••••" required>
-            </div>
+                <!-- Email -->
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="student@university.edu" required>
+                </div>
+                
+                <!-- Password -->
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-input" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary hover-micro" style="width: 100%;">
+                    Create Account
+                </button>
+            </form>
             
-            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
-                <i class="fas fa-user-check"></i> Register Account
-            </button>
-        </form>
-        
-        <!-- Redirect to login screen -->
-        <div style="margin-top: 2rem; border-top: 2px solid var(--border-glass); padding-top: 1.25rem; font-size: 0.9rem;">
-            <span style="color: var(--text-muted);">Already registered?</span> 
-            <a href="{{ url_for('login') }}" style="color: var(--accent-secondary); font-weight: 700; text-decoration: underline;">Sign In here</a>
+            <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem; font-size: 0.85rem; text-align: center;">
+                <span style="color: var(--text-muted);">Already registered?</span> 
+                <a href="{{ url_for('login') }}" style="color: var(--accent-primary); font-weight: 500;">Sign In</a>
+            </div>
         </div>
     </div>
 </div>

@@ -1,7 +1,7 @@
 /**
  * CampusDeck - Interactive Client Logic Script
- * Handles theme toggles, mobile navigation, sticky note rotation, deadline countdowns,
- * flash notifications, and animated dashboard components (live clock, greetings, progress loaders).
+ * Handles theme toggles, mobile sidebar navigation, sticky note indicators,
+ * deadline countdowns, flash notifications, delete confirmations, and dashboard components.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -43,53 +43,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // =========================================================================
-    // 2. Mobile Navigation Toggle
+    // 2. Mobile Sidebar Navigation Toggle
     // =========================================================================
-    const menuToggle = document.querySelector('.menu-toggle');
-    const navLinks = document.querySelector('.nav-links');
+    const sidebar = document.getElementById('app-sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarClose = document.getElementById('sidebar-close');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
 
-    if (menuToggle && navLinks) {
-        menuToggle.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            const icon = menuToggle.querySelector('i');
-            if (icon) {
-                if (navLinks.classList.contains('active')) {
-                    icon.className = 'fas fa-times';
-                } else {
-                    icon.className = 'fas fa-bars';
-                }
-            }
+    if (sidebar && sidebarToggle) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.add('open');
+            if (sidebarOverlay) sidebarOverlay.classList.add('open');
+        });
+    }
+
+    if (sidebar && sidebarClose) {
+        sidebarClose.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            if (sidebarOverlay) sidebarOverlay.classList.remove('open');
+        });
+    }
+
+    if (sidebar && sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('open');
         });
     }
 
     // =========================================================================
-    // 3. Active Nav Menu Underlining/Highlighting
-    // =========================================================================
-    const currentPath = window.location.pathname;
-    const navItems = document.querySelectorAll('.nav-links li');
-    navItems.forEach(item => {
-        const link = item.querySelector('a');
-        if (link) {
-            const href = link.getAttribute('href');
-            if (href === currentPath || (href !== '/' && currentPath.startsWith(href))) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
-            }
-        }
-    });
-
-    // =========================================================================
-    // 4. Random Rotation for Pinned Sticky Notes
-    // =========================================================================
-    const stickyNotes = document.querySelectorAll('.sticky-note');
-    stickyNotes.forEach(note => {
-        const randomRotate = (Math.random() * 6 - 3).toFixed(1);
-        note.style.setProperty('--rotation', `${randomRotate}deg`);
-    });
-
-    // =========================================================================
-    // 5. Client-Side Deadline Calculators
+    // 3. Client-Side Deadline Calculators
     // =========================================================================
     const deadlineElements = document.querySelectorAll('[data-deadline]');
     deadlineElements.forEach(elem => {
@@ -116,13 +99,13 @@ document.addEventListener('DOMContentLoaded', () => {
             badgeText = 'Tomorrow';
             badgeClass = 'urgent';
         } else if (diffDays <= 3) {
-            badgeText = `${diffDays} days left`;
+            badgeText = `${diffDays} d left`;
             badgeClass = 'urgent';
         } else if (diffDays <= 7) {
-            badgeText = `${diffDays} days left`;
+            badgeText = `${diffDays} d left`;
             badgeClass = 'soon';
         } else {
-            badgeText = `${diffDays} days left`;
+            badgeText = `${diffDays} d left`;
             badgeClass = 'safe';
         }
 
@@ -134,17 +117,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // =========================================================================
-    // 6. Flash Alert Message Autohide & Closing
+    // 4. Flash Alert Message Autohide & Closing
     // =========================================================================
     const flashes = document.querySelectorAll('.flash');
     flashes.forEach(flash => {
         setTimeout(() => {
-            flash.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+            flash.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
             flash.style.opacity = '0';
             flash.style.transform = 'translateY(-10px)';
             setTimeout(() => {
                 flash.remove();
-            }, 500);
+            }, 400);
         }, 4000);
 
         const closeBtn = flash.querySelector('.btn-close-flash');
@@ -156,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // =========================================================================
-    // 7. Delete Action Confirmation dialogs
+    // 5. Delete Action Confirmation dialogs
     // =========================================================================
     const deleteForms = document.querySelectorAll('form[action*="delete"]');
     deleteForms.forEach(form => {
@@ -169,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // =========================================================================
-    // 8. Auto-populate Empty Dates
+    // 6. Auto-populate Empty Dates
     // =========================================================================
     const dateInputs = document.querySelectorAll('input[type="date"]');
     dateInputs.forEach(input => {
@@ -183,63 +166,72 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // =========================================================================
-    // 9. Dashboard Welcome greetings, Live Clock, & Metric Animations
+    // 7. Dashboard Welcome greetings & Metric Animations
     // =========================================================================
-    const clockEl = document.getElementById('dashboard-clock');
     const greetingEl = document.getElementById('dashboard-greeting');
 
-    if (clockEl || greetingEl) {
-        // Set dynamic contextual greeting and run live clock updates
-        const updateClockAndGreeting = () => {
+    if (greetingEl) {
+        // Set dynamic contextual greeting
+        const updateGreeting = () => {
             const now = new Date();
+            const hour = now.getHours();
+            const userName = greetingEl.getAttribute('data-username') || 'Student';
+            let greeting = '';
             
-            // Format Clock: hh:mm:ss AM/PM
-            if (clockEl) {
-                let hours = now.getHours();
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                const ampm = hours >= 12 ? 'PM' : 'AM';
-                hours = hours % 12;
-                hours = hours ? hours : 12; // conversion of '0' hour to '12'
-                const displayHours = String(hours).padStart(2, '0');
-                clockEl.textContent = `⏰ ${displayHours}:${minutes}:${seconds} ${ampm}`;
+            if (hour >= 5 && hour < 12) {
+                greeting = `Good morning, ${userName} ☀️`;
+            } else if (hour >= 12 && hour < 17) {
+                greeting = `Good afternoon, ${userName} 👋`;
+            } else if (hour >= 17 && hour < 22) {
+                greeting = `Good evening, ${userName} 🌙`;
+            } else {
+                greeting = `Late night study, ${userName}? 🌙`;
             }
-
-            // Update Greeting Context
-            if (greetingEl) {
-                const hour = now.getHours();
-                const userName = greetingEl.getAttribute('data-username') || 'Student';
-                let greeting = '';
-                
-                if (hour >= 5 && hour < 12) {
-                    greeting = `Good morning, ${userName}! 👋`;
-                } else if (hour >= 12 && hour < 17) {
-                    greeting = `Good afternoon, ${userName}! 👋`;
-                } else if (hour >= 17 && hour < 22) {
-                    greeting = `Good evening, ${userName}! 👋`;
-                } else {
-                    greeting = `Late night study, ${userName}? 🌙`;
-                }
-                
-                if (greetingEl.textContent !== greeting) {
-                    greetingEl.textContent = greeting;
-                }
+            
+            if (greetingEl.textContent !== greeting) {
+                greetingEl.textContent = greeting;
             }
         };
 
-        // Call immediately and set interval for ticking clock
-        updateClockAndGreeting();
-        setInterval(updateClockAndGreeting, 1000);
+        // Call immediately and set interval for dynamic greeting
+        updateGreeting();
+        setInterval(updateGreeting, 60000);
     }
 
-    // Progress Bar load-in animations on Dashboard
+    // Progress Bar and Circular Ring load-in animations on Dashboard
     const gpaBar = document.getElementById('dashboard-gpa-bar');
     if (gpaBar) {
         const gpaValue = parseFloat(gpaBar.getAttribute('data-gpa')) || 0.0;
-        // Scaled to a 10.0 scale: percentage is (gpaValue / 10) * 100
         const percentage = Math.min(Math.max((gpaValue / 10.0) * 100, 0), 100);
         setTimeout(() => {
             gpaBar.style.width = `${percentage}%`;
         }, 150);
     }
+
+    const gpaCircle = document.getElementById('gpa-progress-circle');
+    if (gpaCircle) {
+        const targetOffset = parseFloat(gpaCircle.getAttribute('data-offset')) || 0.0;
+        setTimeout(() => {
+            gpaCircle.style.strokeDashoffset = targetOffset;
+        }, 150);
+    }
+
+    // =========================================================================
+    // 8. Scroll Reveal Animation for Dashboard Cards
+    // =========================================================================
+    const revealElements = document.querySelectorAll('.scroll-reveal');
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        root: null,
+        threshold: 0.1,
+        rootMargin: "0px 0px -20px 0px"
+    });
+
+    revealElements.forEach(el => revealObserver.observe(el));
 });

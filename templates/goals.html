@@ -2,103 +2,112 @@
 
 {% block title %}Study Goals{% endblock %}
 
-{% block content %}
-<div class="page-header">
-    <div>
-        <h1>My Goals</h1>
-        <p style="color: var(--text-muted);">A simple place to write down my semester goals and check them off.</p>
-    </div>
-</div>
+{% block page_title %}Goals{% endblock %}
 
-<!-- Add Goal Form -->
-<section class="form-section glass">
-    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-primary);"></i> Add a New Goal</h2>
-    <form action="{{ url_for('goals') }}" method="POST">
-        <div class="form-grid">
-            <!-- Goal Title -->
-            <div class="form-group form-group-full">
-                <label for="title">Goal Title *</label>
-                <input type="text" id="title" name="title" class="form-input" placeholder="e.g. Complete Calculus Assignment 3" required>
+{% block content %}
+<div class="animate-fade-up">
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem; margin-top: -1rem; font-size: 0.8125rem;">Manage study goals and target dates.</p>
+
+    <!-- Add Goal Form (GitHub Composer style) -->
+    <section class="form-section">
+        <h2 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.35rem;">
+            <i class="fa-solid fa-circle-plus" style="color: var(--accent-primary);"></i> Add New Goal
+        </h2>
+        <form action="{{ url_for('goals') }}" method="POST">
+            <div class="form-grid">
+                <!-- Goal Title -->
+                <div class="form-group form-group-full">
+                    <label for="title">Goal Title *</label>
+                    <input type="text" id="title" name="title" class="form-input" placeholder="e.g. Complete advanced calculus assignment" required>
+                </div>
+                
+                <!-- Category -->
+                <div class="form-group">
+                    <label for="category">Subject / Category *</label>
+                    <input type="text" id="category" name="category" class="form-input" placeholder="e.g. Mathematics" required>
+                </div>
+
+                <!-- Target Date -->
+                <div class="form-group">
+                    <label for="target_date">Target Date *</label>
+                    <input type="date" id="target_date" name="target_date" class="form-input" required>
+                </div>
+
+                <!-- Status Selection -->
+                <div class="form-group">
+                    <label for="status">Initial Status</label>
+                    <select id="status" name="status" class="form-select">
+                        <option value="Not Started" selected>Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
             </div>
             
-            <!-- Category -->
-            <div class="form-group">
-                <label for="category">Subject / Category *</label>
-                <input type="text" id="category" name="category" class="form-input" placeholder="e.g. Mathematics" required>
+            <div style="text-align: right; margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary hover-micro">
+                    Create Goal
+                </button>
             </div>
+        </form>
+    </section>
 
-            <!-- Target Date -->
-            <div class="form-group">
-                <label for="target_date">Target Date *</label>
-                <input type="date" id="target_date" name="target_date" class="form-input" required>
-            </div>
-
-            <!-- Status Selection -->
-            <div class="form-group">
-                <label for="status">Initial Status</label>
-                <select id="status" name="status" class="form-select">
-                    <option value="Not Started" selected>Not Started</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                </select>
-            </div>
-        </div>
-        
-        <div style="text-align: right;">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add Goal
-            </button>
-        </div>
-    </form>
-</section>
-
-<!-- Active Goals Cards Grid -->
-<section class="cards-grid">
-    {% if goals %}
-        {% for goal in goals %}
-            <div class="item-card glass glass-interactive {% if goal.status == 'Completed' %}completed-border{% endif %}">
-                <span class="card-subject">{{ goal.category }}</span>
-                <h3 class="card-title">{{ goal.title }}</h3>
-                
-                <div style="margin-top: 1rem; margin-bottom: 1.5rem;">
-                    <!-- Status Badge -->
-                    {% if goal.status == 'Completed' %}
-                        <span class="badge badge-completed"><i class="fas fa-circle-check"></i> Completed</span>
-                    {% elif goal.status == 'In Progress' %}
-                        <span class="badge badge-in-progress"><i class="fas fa-circle-notch fa-spin"></i> In Progress</span>
-                    {% else %}
-                        <span class="badge badge-not-started"><i class="fas fa-circle"></i> Not Started</span>
-                    {% endif %}
-                </div>
-
-                <div class="card-footer">
-                    <span class="card-date">
-                        <i class="fas fa-calendar-check"></i> Target: {{ goal.target_date }}
-                    </span>
-                    
-                    <div class="card-actions">
-                        <!-- Toggle Status Button -->
-                        <form action="{{ url_for('toggle_goal', goal_id=goal.id) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" title="Change status">
-                                <i class="fas fa-sync"></i> Toggle
-                            </button>
-                        </form>
+    <!-- Active Goals Cards Grid (GitHub Issues / LeetCode Cards mix) -->
+    <section class="cards-grid">
+        {% if goals %}
+            {% for goal in goals %}
+                <div class="card-base {% if goal.status == 'Completed' %}completed-goal{% endif %}" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 130px; {% if goal.status == 'Completed' %}opacity: 0.65;{% endif %}">
+                    <div>
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.35rem;">
+                            <!-- Category Badge styled like GitHub issue label -->
+                            <span class="badge" style="background-color: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.2); color: var(--accent-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;">
+                                <i class="fa-solid fa-tag" style="font-size: 0.6rem;"></i> {{ goal.category }}
+                            </span>
+                            
+                            <!-- Status Badges -->
+                            {% if goal.status == 'Completed' %}
+                                <span class="badge badge-completed"><i class="fa-solid fa-circle-check"></i> Completed</span>
+                            {% elif goal.status == 'In Progress' %}
+                                <span class="badge badge-in-progress"><i class="fa-solid fa-spinner"></i> In Progress</span>
+                            {% else %}
+                                <span class="badge badge-not-started"><i class="fa-regular fa-circle-dot"></i> Not Started</span>
+                            {% endif %}
+                        </div>
                         
-                        <!-- Delete Button -->
-                        <form action="{{ url_for('delete_goal', goal_id=goal.id) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger" title="Delete goal">
-                                <i class="fas fa-trash-can"></i>
-                            </button>
-                        </form>
+                        <h3 class="card-title" style="font-weight: 500; font-size: 0.9rem; margin-top: 0.35rem; color: var(--text-primary);">
+                            {{ goal.title }}
+                        </h3>
+                    </div>
+
+                    <div class="card-footer">
+                        <span class="card-date" style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;">
+                            <i class="fa-solid fa-calendar-days"></i> {{ goal.target_date }}
+                        </span>
+                        
+                        <div class="card-actions">
+                            <!-- Toggle Status Button -->
+                            <form action="{{ url_for('toggle_goal', goal_id=goal.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-secondary hover-micro" style="padding: 0.2rem 0.4rem; font-size: 0.725rem;" title="Toggle status">
+                                    <i class="fa-solid fa-rotate"></i> Toggle
+                                </button>
+                            </form>
+                            
+                            <!-- Delete Button -->
+                            <form action="{{ url_for('delete_goal', goal_id=goal.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger hover-micro" style="padding: 0.2rem 0.4rem; font-size: 0.725rem;" title="Delete goal">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
+            {% endfor %}
+        {% else %}
+            <div class="card-base" style="grid-column: 1 / -1; padding: 2rem; text-align: center; color: var(--text-muted);">
+                <i class="fa-solid fa-circle-dot" style="font-size: 1.5rem; opacity: 0.3; margin-bottom: 0.5rem; display: block;"></i>
+                <p style="font-size: 0.775rem;">No goals logged yet</p>
             </div>
-        {% endfor %}
-    {% else %}
-        <div class="glass" style="grid-column: 1 / -1; padding: 4rem; text-align: center; color: var(--text-muted);">
-            <i class="fas fa-bullseye" style="font-size: 4rem; opacity: 0.15; margin-bottom: 1rem; display: block;"></i>
-            <p>No study goals created yet. Set your targets to stay focused!</p>
-        </div>
-    {% endif %}
-</section>
+        {% endif %}
+    </section>
+</div>
 {% endblock %}

@@ -2,110 +2,117 @@
 
 {% block title %}My Bookmarks{% endblock %}
 
+{% block page_title %}Resource Vault{% endblock %}
+
 {% block content %}
-<div class="page-header">
-    <div>
-        <h1>My Bookmarks</h1>
-        <p style="color: var(--text-muted);">A place to store links to lecture slides, assignments, tools, and reading materials.</p>
-    </div>
-</div>
+<div class="animate-fade-up">
+    <p style="color: var(--text-muted); margin-bottom: 1.5rem; margin-top: -1rem; font-size: 0.8125rem;">Save links to reference and study materials.</p>
 
-<!-- Add Resource Form -->
-<section class="form-section glass">
-    <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;"><i class="fas fa-plus-circle" style="color: var(--accent-secondary);"></i> Add a Bookmark</h2>
-    <form action="{{ url_for('resources') }}" method="POST">
-        <div class="form-grid">
-            <!-- Resource Title -->
-            <div class="form-group form-group-full">
-                <label for="title">Resource Title *</label>
-                <input type="text" id="title" name="title" class="form-input" placeholder="e.g. Flask Crash Course by Traversy Media" required>
-            </div>
-
-            <!-- Subject Category -->
-            <div class="form-group">
-                <label for="subject">Subject *</label>
-                <input type="text" id="subject" name="subject" class="form-input" placeholder="e.g. Computer Science" required>
-            </div>
-
-            <!-- Resource Type selection -->
-            <div class="form-group">
-                <label for="type">Resource Type *</label>
-                <select id="type" name="type" class="form-select" required>
-                    <option value="" disabled selected>Select resource type...</option>
-                    <option value="YouTube">YouTube Video</option>
-                    <option value="PDF">PDF / Document</option>
-                    <option value="Website">Website / Article</option>
-                    <option value="Notes">Notes / Markdown</option>
-                </select>
-            </div>
-
-            <!-- Link -->
-            <div class="form-group">
-                <label for="link">Resource Link (URL) *</label>
-                <input type="text" id="link" name="link" class="form-input" placeholder="e.g. youtube.com/watch?v=..." required>
-            </div>
-
-            <!-- Short Description -->
-            <div class="form-group form-group-full">
-                <label for="description">Short Description</label>
-                <textarea id="description" name="description" class="form-textarea" placeholder="Add a quick overview about how this resource helps you."></textarea>
-            </div>
-        </div>
-
-        <div style="text-align: right;">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add Bookmark
-            </button>
-        </div>
-    </form>
-</section>
-
-<!-- Resource Cards Grid -->
-<section class="cards-grid">
-    {% if resources %}
-        {% for resource in resources %}
-            <div class="item-card glass glass-interactive">
-                <!-- Icon matching Resource Type -->
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-                    <span class="card-subject">{{ resource.subject }}</span>
-                    <span style="font-size: 1.25rem;">
-                        {% if resource.type == 'YouTube' %}
-                            <i class="fab fa-youtube" style="color: #ef4444;" title="YouTube Video"></i>
-                        {% elif resource.type == 'PDF' %}
-                            <i class="fas fa-file-pdf" style="color: #f87171;" title="PDF Document"></i>
-                        {% elif resource.type == 'Website' %}
-                            <i class="fas fa-globe" style="color: #60a5fa;" title="Website link"></i>
-                        {% else %}
-                            <i class="fas fa-file-lines" style="color: #fbbf24;" title="Study Notes"></i>
-                        {% endif %}
-                    </span>
+    <!-- Add Resource Form (GitHub composer style) -->
+    <section class="form-section">
+        <h2 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.35rem;">
+            <i class="fa-solid fa-bookmark" style="color: var(--accent-primary);"></i> Save New Resource
+        </h2>
+        <form action="{{ url_for('resources') }}" method="POST">
+            <div class="form-grid">
+                <!-- Resource Title -->
+                <div class="form-group form-group-full">
+                    <label for="title">Resource Title *</label>
+                    <input type="text" id="title" name="title" class="form-input" placeholder="e.g. Lecture slides, reference tools, cheat sheets" required>
                 </div>
-                
-                <h3 class="card-title" style="margin-bottom: 0.75rem;">{{ resource.title }}</h3>
-                <p class="card-desc">{{ resource.description if resource.description else "No description provided." }}</p>
 
-                <div class="card-footer">
-                    <!-- Dynamic external link -->
-                    <a href="{{ resource.link }}" target="_blank" rel="noopener noreferrer" class="resource-link">
-                        <i class="fas fa-arrow-up-right-from-square"></i> Open Resource
-                    </a>
-                    
-                    <div class="card-actions">
-                        <!-- Delete Form -->
-                        <form action="{{ url_for('delete_resource', resource_id=resource.id) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger" title="Remove Resource">
-                                <i class="fas fa-trash-can"></i>
-                            </button>
-                        </form>
+                <!-- Subject Category -->
+                <div class="form-group">
+                    <label for="subject">Subject *</label>
+                    <input type="text" id="subject" name="subject" class="form-input" placeholder="e.g. Computer Science" required>
+                </div>
+
+                <!-- Resource Type selection -->
+                <div class="form-group">
+                    <label for="type">Resource Type *</label>
+                    <select id="type" name="type" class="form-select" required>
+                        <option value="" disabled selected>Select type...</option>
+                        <option value="YouTube">YouTube Video</option>
+                        <option value="PDF">PDF / Document</option>
+                        <option value="Website">Website / Article</option>
+                        <option value="Notes">Notes / Markdown</option>
+                    </select>
+                </div>
+
+                <!-- Link -->
+                <div class="form-group">
+                    <label for="link">Resource Link (URL) *</label>
+                    <input type="text" id="link" name="link" class="form-input" placeholder="e.g. https://example.com" required>
+                </div>
+
+                <!-- Short Description -->
+                <div class="form-group form-group-full">
+                    <label for="description">Short Description</label>
+                    <textarea id="description" name="description" class="form-textarea" placeholder="Add a quick overview of what this resource covers."></textarea>
+                </div>
+            </div>
+
+            <div style="text-align: right; margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary hover-micro">
+                    Save Resource
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Resource Cards Grid (GitHub Repo style cards) -->
+    <section class="cards-grid">
+        {% if resources %}
+            {% for resource in resources %}
+                <div class="card-base" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 150px;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem;">
+                            <!-- Subject Badge -->
+                            <span class="badge" style="background-color: rgba(255, 255, 255, 0.05); border-color: var(--border-color); color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;">
+                                {{ resource.subject }}
+                            </span>
+                            
+                            <!-- Resource Type Icon -->
+                            <span style="font-size: 0.9rem; color: var(--text-muted);">
+                                {% if resource.type == 'YouTube' %}
+                                    <i class="fa-brands fa-youtube" title="YouTube Video" style="color: var(--accent-danger);"></i>
+                                {% elif resource.type == 'PDF' %}
+                                    <i class="fa-solid fa-file-pdf" title="PDF Document" style="color: #da3637;"></i>
+                                {% elif resource.type == 'Website' %}
+                                    <i class="fa-solid fa-globe" title="Website link" style="color: #58a6ff;"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-file-code" title="Study Notes" style="color: var(--accent-primary);"></i>
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <h3 class="card-title" style="color: var(--text-primary);">{{ resource.title }}</h3>
+                        <p class="card-desc">{{ resource.description if resource.description else "No overview provided." }}</p>
+                    </div>
+
+                    <div class="card-footer">
+                        <!-- Dynamic external link -->
+                        <a href="{{ resource.link }}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary hover-micro" style="padding: 0.2rem 0.4rem; font-size: 0.725rem;">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Open
+                        </a>
+                        
+                        <div class="card-actions">
+                            <!-- Delete Form -->
+                            <form action="{{ url_for('delete_resource', resource_id=resource.id) }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger hover-micro" style="padding: 0.2rem 0.4rem; font-size: 0.725rem;" title="Remove Resource">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
+            {% endfor %}
+        {% else %}
+            <div class="card-base" style="grid-column: 1 / -1; padding: 2rem; text-align: center; color: var(--text-muted);">
+                <i class="fa-solid fa-bookmark" style="font-size: 1.5rem; opacity: 0.3; margin-bottom: 0.5rem; display: block;"></i>
+                <p style="font-size: 0.775rem;">No saved resources yet</p>
             </div>
-        {% endfor %}
-    {% else %}
-        <div class="glass" style="grid-column: 1 / -1; padding: 4rem; text-align: center; color: var(--text-muted);">
-            <i class="fas fa-vault" style="font-size: 4rem; opacity: 0.15; margin-bottom: 1rem; display: block;"></i>
-            <p>No bookmarks saved yet. Use the form above to add a link!</p>
-        </div>
-    {% endif %}
-</section>
+        {% endif %}
+    </section>
+</div>
 {% endblock %}

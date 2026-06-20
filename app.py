@@ -481,6 +481,17 @@ def notes():
     user_id = session.get('user_id')
     all_notes = load_data('notes.json')
 
+    # Automatically assign IDs to old notes that might not have one.
+    # This prevents errors during deletion and updates legacy JSON data.
+    # Note IDs are unique strings (UUIDs) that allow us to identify exactly which note to delete.
+    needs_save = False
+    for note in all_notes:
+        if 'id' not in note:
+            note['id'] = str(uuid.uuid4())
+            needs_save = True
+    if needs_save:
+        save_data('notes.json', all_notes)
+
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
@@ -514,13 +525,22 @@ def delete_note(note_id):
     """
     Delete Note.
     """
+    # 1. Verify that the user is logged in
     if not session.get('user_id'):
         return redirect(url_for('login'))
 
     user_id = session.get('user_id')
-    all_notes = load_data('notes.json')
-    updated_list = [n for n in all_notes if not (n['id'] == note_id and n.get('user_id') == user_id)]
     
+    # 2. Load the current database of notes from JSON
+    all_notes = load_data('notes.json')
+    
+    # 3. Filter out the note to be deleted.
+    # Flask handles the POST request to this route, passing the note_id from the URL.
+    # We rebuild the list, keeping only notes that DO NOT match both the target note_id and the current user_id.
+    # We use note.get('id') to safely handle any legacy notes that might not have an 'id'.
+    updated_list = [note for note in all_notes if not (note.get('id') == note_id and note.get('user_id') == user_id)]
+    
+    # 4. Save the updated list back to the JSON file, permanently removing the note
     save_data('notes.json', updated_list)
     flash('Quick note discarded.', 'success')
     return redirect(url_for('notes'))
