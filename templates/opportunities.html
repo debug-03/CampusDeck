@@ -34,6 +34,16 @@
                     </select>
                 </div>
 
+                <!-- Category Selection -->
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" class="form-select">
+                        <option value="Events" selected>Events</option>
+                        <option value="Hackathons">Hackathons</option>
+                        <option value="Internships">Internships</option>
+                    </select>
+                </div>
+
                 <!-- Status -->
                 <div class="form-group">
                     <label for="status">Initial Status</label>
@@ -71,20 +81,36 @@
         </form>
     </section>
 
+    <!-- Filter Buttons -->
+    <div class="filters-container" style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary filter-opp-btn active" data-filter="All">All</button>
+        <button class="btn btn-secondary filter-opp-btn" data-filter="Hackathons">Hackathons</button>
+        <button class="btn btn-secondary filter-opp-btn" data-filter="Internships">Internships</button>
+        <button class="btn btn-secondary filter-opp-btn" data-filter="Events">Events</button>
+    </div>
+
     <!-- Opportunity Tracker Grid (GitHub style cards) -->
-    <section class="cards-grid">
+    <section class="cards-grid" id="opportunities-grid">
         {% if opportunities %}
             {% for opp in opportunities %}
-                <!-- The data-deadline attribute is caught by script.js to dynamically compute countdown status classes -->
-                <div class="card-base opportunity-card" data-deadline="{{ opp.deadline }}" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 150px;">
+                <!-- The data-category attribute is caught by script.js to dynamically filter -->
+                <div class="card-base opportunity-card" data-category="{{ opp.category|default('Events') }}" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 150px;">
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem;">
-                            <!-- Type Badge -->
-                            <span class="badge" style="background-color: rgba(255, 255, 255, 0.05); border-color: var(--border-color); color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;">
-                                {{ opp.type }}
+                            <div style="display: flex; gap: 0.3rem;">
+                                <!-- Category Badge -->
+                                <span class="badge badge-category-{{ opp.category|default('Events')|lower|replace(' ', '-') }}">
+                                    {{ opp.category|default('Events') }}
+                                </span>
+                                <!-- Type Badge -->
+                                <span class="badge" style="background-color: rgba(255, 255, 255, 0.05); border-color: var(--border-color); color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;">
+                                    {{ opp.type }}
+                                </span>
+                            </div>
+                            <!-- Smart deadline label -->
+                            <span class="badge {% if opp.deadline_info %}{{ opp.deadline_info.color }}{% else %}default{% endif %}">
+                                {% if opp.deadline_info %}{{ opp.deadline_info.label }}{% endif %}
                             </span>
-                            <!-- Days left element filled by client-side Javascript -->
-                            <span class="days-left">...</span>
                         </div>
 
                         <h3 class="card-title" style="color: var(--text-primary);">{{ opp.name }}</h3>

@@ -42,6 +42,28 @@
                         <option value="Completed">Completed</option>
                     </select>
                 </div>
+
+                <!-- Priority -->
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" name="priority" class="form-select">
+                        <option value="Low">Low</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+
+                <!-- Progress -->
+                <div class="form-group">
+                    <label for="progress">Progress (%)</label>
+                    <input type="number" id="progress" name="progress" class="form-input" min="0" max="100" value="0">
+                </div>
+
+                <!-- Description -->
+                <div class="form-group form-group-full">
+                    <label for="description">Description (Optional)</label>
+                    <textarea id="description" name="description" class="form-textarea" placeholder="Brief details about this goal."></textarea>
+                </div>
             </div>
             
             <div style="text-align: right; margin-top: 1rem;">
@@ -52,11 +74,19 @@
         </form>
     </section>
 
+    <!-- Filter Buttons -->
+    <div class="filters-container" style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
+        <button class="btn btn-secondary filter-goal-btn active" data-filter="All">All</button>
+        <button class="btn btn-secondary filter-goal-btn" data-filter="High">High</button>
+        <button class="btn btn-secondary filter-goal-btn" data-filter="Medium">Medium</button>
+        <button class="btn btn-secondary filter-goal-btn" data-filter="Low">Low</button>
+    </div>
+
     <!-- Active Goals Cards Grid (GitHub Issues / LeetCode Cards mix) -->
-    <section class="cards-grid">
+    <section class="cards-grid" id="goals-grid">
         {% if goals %}
             {% for goal in goals %}
-                <div class="card-base {% if goal.status == 'Completed' %}completed-goal{% endif %}" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 130px; {% if goal.status == 'Completed' %}opacity: 0.65;{% endif %}">
+                <div class="card-base goal-card {% if goal.status == 'Completed' %}completed-goal{% endif %}" data-priority="{{ goal.priority|default('Medium') }}" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 150px; {% if goal.status == 'Completed' %}opacity: 0.65;{% endif %}">
                     <div>
                         <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.35rem;">
                             <!-- Category Badge styled like GitHub issue label -->
@@ -64,24 +94,44 @@
                                 <i class="fa-solid fa-tag" style="font-size: 0.6rem;"></i> {{ goal.category }}
                             </span>
                             
-                            <!-- Status Badges -->
-                            {% if goal.status == 'Completed' %}
-                                <span class="badge badge-completed"><i class="fa-solid fa-circle-check"></i> Completed</span>
-                            {% elif goal.status == 'In Progress' %}
-                                <span class="badge badge-in-progress"><i class="fa-solid fa-spinner"></i> In Progress</span>
-                            {% else %}
-                                <span class="badge badge-not-started"><i class="fa-regular fa-circle-dot"></i> Not Started</span>
-                            {% endif %}
+                            <div style="display: flex; gap: 0.3rem;">
+                                <!-- Priority Badge -->
+                                <span class="badge badge-priority-{{ goal.priority|default('Medium')|lower }}"><i class="fa-solid fa-flag"></i> {{ goal.priority|default('Medium') }}</span>
+
+                                <!-- Status Badges -->
+                                {% if goal.status == 'Completed' %}
+                                    <span class="badge badge-completed"><i class="fa-solid fa-circle-check"></i> Completed</span>
+                                {% elif goal.status == 'In Progress' %}
+                                    <span class="badge badge-in-progress"><i class="fa-solid fa-spinner"></i> In Progress</span>
+                                {% else %}
+                                    <span class="badge badge-not-started"><i class="fa-regular fa-circle-dot"></i> Not Started</span>
+                                {% endif %}
+                            </div>
                         </div>
                         
                         <h3 class="card-title" style="font-weight: 500; font-size: 0.9rem; margin-top: 0.35rem; color: var(--text-primary);">
                             {{ goal.title }}
                         </h3>
+                        {% if goal.description %}
+                            <p class="card-desc" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; margin-bottom: 0.5rem;">{{ goal.description }}</p>
+                        {% endif %}
+
+                        <!-- Progress Bar -->
+                        <div style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); margin-bottom: 0.2rem;">
+                                <span>Progress</span>
+                                <span>{{ goal.progress|default(0) }}%</span>
+                            </div>
+                            <div style="width: 100%; height: 4px; background-color: var(--border-color); border-radius: 2px; overflow: hidden;">
+                                <div class="progress-fill priority-{{ goal.priority|default('Medium')|lower }}" style="height: 100%; width: {{ goal.progress|default(0) }}%; transition: width 0.5s ease;"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="card-footer">
-                        <span class="card-date" style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;">
-                            <i class="fa-solid fa-calendar-days"></i> {{ goal.target_date }}
+                        <span class="card-date" style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; display: flex; align-items: center; gap: 0.3rem;">
+                            <span class="badge {% if goal.deadline_info %}{{ goal.deadline_info.color }}{% else %}default{% endif %}">{% if goal.deadline_info %}{{ goal.deadline_info.label }}{% endif %}</span>
+                            <span><i class="fa-solid fa-calendar-days"></i> {{ goal.target_date }}</span>
                         </span>
                         
                         <div class="card-actions">

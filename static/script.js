@@ -11,14 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleBtns = document.querySelectorAll('.theme-toggle-btn');
     
     const applyTheme = (theme) => {
+        document.documentElement.setAttribute('data-theme', theme);
         if (theme === 'light') {
-            document.body.classList.add('light-mode');
             themeToggleBtns.forEach(btn => {
                 btn.innerHTML = '<i class="fas fa-moon"></i>';
                 btn.setAttribute('aria-label', 'Switch to Dark Mode');
             });
         } else {
-            document.body.classList.remove('light-mode');
             themeToggleBtns.forEach(btn => {
                 btn.innerHTML = '<i class="fas fa-sun"></i>';
                 btn.setAttribute('aria-label', 'Switch to Light Mode');
@@ -26,17 +25,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        applyTheme(savedTheme);
-    } else {
-        applyTheme('dark');
-    }
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
 
     themeToggleBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            const isLight = document.body.classList.contains('light-mode');
-            const newTheme = isLight ? 'dark' : 'light';
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             localStorage.setItem('theme', newTheme);
             applyTheme(newTheme);
         });
@@ -234,4 +229,165 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     revealElements.forEach(el => revealObserver.observe(el));
+
+    // =========================================================================
+    // 9. Goals Filtering Logic
+    // =========================================================================
+    const goalFilterBtns = document.querySelectorAll('.filter-goal-btn');
+    const goalCards = document.querySelectorAll('.goal-card');
+
+    if (goalFilterBtns.length > 0 && goalCards.length > 0) {
+        goalFilterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class
+                goalFilterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const filterValue = btn.getAttribute('data-filter');
+                
+                goalCards.forEach(card => {
+                    if (filterValue === 'All' || card.getAttribute('data-priority') === filterValue) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+    }
+
+    // =========================================================================
+    // 10. Opportunities Filtering Logic
+    // =========================================================================
+    const oppFilterBtns = document.querySelectorAll('.filter-opp-btn');
+    const oppCards = document.querySelectorAll('.opportunity-card');
+
+    if (oppFilterBtns.length > 0 && oppCards.length > 0) {
+        oppFilterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                oppFilterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const filterValue = btn.getAttribute('data-filter');
+                
+                oppCards.forEach(card => {
+                    if (filterValue === 'All' || card.getAttribute('data-category') === filterValue) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+    }
+
+    // =========================================================================
+    // 11. Calendar Generation Logic
+    // =========================================================================
+    const calendarGrid = document.getElementById('calendar-grid');
+    const monthYearText = document.getElementById('calendar-month-year');
+    const prevMonthBtn = document.getElementById('prev-month');
+    const nextMonthBtn = document.getElementById('next-month');
+
+    if (calendarGrid && window.calendarData) {
+        let currentDate = new Date();
+        
+        const renderCalendar = () => {
+            calendarGrid.innerHTML = '';
+            
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            // Format Title
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            monthYearText.textContent = `${monthNames[month]} ${year}`;
+            
+            // Get first day of month and total days
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Generate empty slots for previous month
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-day empty';
+                calendarGrid.appendChild(emptyCell);
+            }
+            
+            // Generate days
+            const today = new Date();
+            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day';
+                if (isCurrentMonth && day === today.getDate()) {
+                    dayCell.classList.add('today');
+                }
+                
+                const dayNum = document.createElement('span');
+                dayNum.className = 'day-number';
+                dayNum.textContent = day;
+                dayCell.appendChild(dayNum);
+                
+                // Format date string as YYYY-MM-DD
+                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // Add Goals
+                window.calendarData.goals.forEach(goal => {
+                    if (goal.target_date === dateString) {
+                        const eventDiv = document.createElement('div');
+                        let priorityClass = 'cal-medium';
+                        if (goal.priority === 'High') priorityClass = 'cal-high';
+                        if (goal.priority === 'Low') priorityClass = 'cal-low';
+                        if (goal.status === 'Completed') priorityClass = 'cal-completed';
+                        
+                        eventDiv.className = `calendar-event ${priorityClass}`;
+                        eventDiv.textContent = `🎯 ${goal.title}`;
+                        eventDiv.title = goal.title;
+                        dayCell.appendChild(eventDiv);
+                    }
+                });
+                
+                // Add Opportunities
+                window.calendarData.opportunities.forEach(opp => {
+                    if (opp.deadline === dateString) {
+                        const eventDiv = document.createElement('div');
+                        let catClass = 'cal-event';
+                        if (opp.category === 'Hackathons') catClass = 'cal-hackathon';
+                        if (opp.category === 'Internships') catClass = 'cal-internship';
+                        if (opp.status === 'Completed') catClass = 'cal-completed';
+                        
+                        eventDiv.className = `calendar-event ${catClass}`;
+                        eventDiv.textContent = `💼 ${opp.name}`;
+                        eventDiv.title = opp.name;
+                        dayCell.appendChild(eventDiv);
+                    }
+                });
+                
+                calendarGrid.appendChild(dayCell);
+            }
+            
+            // Fill remaining grid spaces
+            const totalCells = firstDay + daysInMonth;
+            const remainingCells = 42 - totalCells; // 6 rows max
+            for (let i = 0; i < remainingCells; i++) {
+                if (totalCells + i > 35 && remainingCells > 7) continue; 
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-day empty';
+                calendarGrid.appendChild(emptyCell);
+            }
+        };
+
+        renderCalendar();
+
+        prevMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        nextMonthBtn.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+    }
 });

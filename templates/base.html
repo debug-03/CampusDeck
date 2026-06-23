@@ -41,6 +41,9 @@
                     <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.path == url_for('dashboard') %}active{% endif %}">
                         <i class="fa-solid fa-chart-line"></i> Dashboard
                     </a>
+                    <a href="{{ url_for('calendar') }}" class="nav-item {% if request.path == url_for('calendar') %}active{% endif %}">
+                        <i class="fa-regular fa-calendar"></i> Calendar
+                    </a>
                     <a href="{{ url_for('goals') }}" class="nav-item {% if request.path == url_for('goals') %}active{% endif %}">
                         <i class="fa-solid fa-circle-dot"></i> Goals
                     </a>
@@ -124,7 +127,6 @@
                     <nav class="public-nav">
                         <a href="{{ url_for('index') }}">Home</a>
                         <a href="{{ url_for('login') }}">Login</a>
-                        <a href="{{ url_for('register') }}" class="btn btn-primary" style="padding: 0.35rem 0.85rem; font-size: 0.8125rem;">Create Account</a>
                         <button class="theme-toggle-btn" aria-label="Toggle Theme"><i class="fas fa-sun"></i></button>
                     </nav>
                 </div>

@@ -148,7 +148,53 @@
             </div>
         </div>
 
-        <!-- Box 5: Recent Sticky Notes (Spans 2 Columns) - GitHub Gist Card Style -->
+        <!-- Box 5: Upcoming Deadlines (Spans 2 Columns) -->
+        <div class="bento-card bento-col-2 card-base scroll-reveal">
+            <div class="bento-card-title">
+                <span><i class="fa-solid fa-clock"></i> Upcoming Deadlines</span>
+                <a href="{{ url_for('calendar') }}" class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">
+                    View Calendar
+                </a>
+            </div>
+
+            {% if upcoming_deadlines %}
+                <div class="bento-list">
+                    {% for item in upcoming_deadlines %}
+                        <div class="bento-list-item" style="border-left: 2px solid {% if item.deadline_info.color == 'deadline-red' %}var(--priority-high){% elif item.deadline_info.color == 'deadline-orange' %}var(--priority-medium){% else %}var(--text-muted){% endif %};">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; min-width: 0;">
+                                {% if item.type == 'Goal' %}
+                                    <i class="fa-solid fa-circle-dot" style="color: var(--accent-primary); font-size: 0.75rem; flex-shrink: 0;"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-briefcase" style="color: var(--accent-warning); font-size: 0.75rem; flex-shrink: 0;"></i>
+                                {% endif %}
+                                <div style="min-width: 0;">
+                                    <div style="font-weight: 500; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        {{ item.title }}
+                                    </div>
+                                    <span style="font-size: 0.65rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">
+                                        {{ item.type }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="text-align: right; flex-shrink: 0; margin-left: 0.5rem;">
+                                <span class="badge {{ item.deadline_info.color }}">
+                                    {{ item.deadline_info.label }}
+                                </span>
+                                <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.15rem; font-family: 'JetBrains Mono', monospace;">
+                                    {{ item.target_date }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 1rem; color: var(--text-muted); flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <p style="font-size: 0.75rem; margin-bottom: 0.5rem;">No upcoming deadlines</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Box 6: Recent Sticky Notes (Spans 2 Columns) - GitHub Gist Card Style -->
         <div class="bento-card bento-col-2 card-base scroll-reveal">
             <div class="bento-card-title">
                 <span><i class="fa-solid fa-note-sticky"></i> Recent Notes</span>
@@ -179,7 +225,7 @@
             {% endif %}
         </div>
 
-        <!-- Box 6: Quick Actions (1x1) - GitHub Pull Request style list -->
+        <!-- Box 7: Quick Actions (1x1) - GitHub Pull Request style list -->
         <div class="bento-card card-base scroll-reveal">
             <div class="bento-card-title">
                 <span><i class="fa-solid fa-bolt"></i> Actions</span>

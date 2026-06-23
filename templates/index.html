@@ -3,24 +3,24 @@
 {% block title %}Welcome{% endblock %}
 
 {% block content %}
-<div class="animate-fade-up" style="max-width: 950px; margin: 0 auto; padding-top: 3rem; padding-bottom: 4rem;">
+<div class="animate-fade-up" style="max-width: 950px; margin: 0 auto; padding-top: 1.5rem; padding-bottom: 4rem;">
     <!-- Hero Section -->
-    <section class="hero" style="padding: 2rem 1rem 4rem 1rem; text-align: center; max-width: 650px; margin: 0 auto;">
-        <h1 style="font-size: 3.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; letter-spacing: -0.03em;">CampusDeck</h1>
-        <p style="font-size: 1.15rem; color: var(--text-muted); margin-bottom: 2.5rem; line-height: 1.6;">
+    <section class="hero" style="padding: 1.5rem 1rem 3.5rem 1rem; text-align: center; max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
+        <h1 style="font-size: clamp(3rem, 6vw, 5rem); line-height: 1; font-weight: 700; color: var(--text-primary); margin-bottom: 1.25rem; letter-spacing: -0.03em;">CampusDeck</h1>
+        <p style="font-size: 1.25rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 2.5rem; max-width: 600px;">
             Keep your goals, resources, notes, and opportunities organized in one place.
         </p>
         
-        <div class="hero-cta" style="display: flex; flex-direction: column; align-items: center; gap: 1.25rem;">
+        <div class="hero-cta" style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
             {% if session.get('user_id') %}
-                <a href="{{ url_for('dashboard') }}" class="btn btn-primary hover-micro" style="font-size: 0.95rem; padding: 0.65rem 1.75rem; border-radius: var(--radius-md);">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary hero-btn hover-micro">
                     Open Dashboard
                 </a>
             {% else %}
-                <a href="{{ url_for('register') }}" class="btn btn-primary hover-micro" style="font-size: 0.95rem; padding: 0.65rem 1.75rem; border-radius: var(--radius-md);">
+                <a href="{{ url_for('register') }}" class="btn btn-primary hero-btn hover-micro">
                     Get Started
                 </a>
-                <a href="{{ url_for('login') }}" style="font-size: 0.85rem; color: var(--text-muted); text-decoration: none; transition: color 0.15s ease;">
+                <a href="{{ url_for('login') }}" style="font-size: 0.9rem; color: var(--text-muted); text-decoration: none; transition: color 0.15s ease;">
                     Already have an account? <span style="color: var(--text-primary); font-weight: 500;">Sign in</span>
                 </a>
             {% endif %}
@@ -28,38 +28,48 @@
     </section>
 
     <!-- Clean Feature Cards -->
-    <section class="features-preview" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; padding: 0 1.5rem; margin-top: 1rem;">
-        <div class="card-base hover-micro" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.85rem;">
-            <i class="fa-solid fa-bullseye" style="color: var(--accent-primary); font-size: 1.25rem;"></i>
-            <div>
-                <h3 style="font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">Track Goals</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0; line-height: 1.5;">Manage your academic targets and deadlines.</p>
+    <section class="features-preview">
+        <div class="feature-card">
+            <div class="card-icon-container" style="background-color: rgba(201,168,106,0.12);">
+                <i class="fa-solid fa-bullseye" style="color: var(--accent-primary);"></i>
+            </div>
+            <div class="card-content-wrapper">
+                <span class="card-label">Goals</span>
+                <h3 class="card-title">Track Goals</h3>
+                <p class="card-desc">Manage your academic targets and deadlines.</p>
+            </div>
+            <div class="card-cta">
+                <span>&rarr; Explore</span>
             </div>
         </div>
 
-        <div class="card-base hover-micro" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.85rem;">
-            <i class="fa-solid fa-bookmark" style="color: var(--accent-success); font-size: 1.25rem;"></i>
-            <div>
-                <h3 style="font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">Save Resources</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0; line-height: 1.5;">Bookmark helpful study materials and links.</p>
+        <div class="feature-card">
+            <div class="card-icon-container" style="background-color: rgba(34,139,34,0.10);">
+                <i class="fa-solid fa-bookmark" style="color: var(--accent-success);"></i>
+            </div>
+            <div class="card-content-wrapper">
+                <span class="card-label">Resources</span>
+                <h3 class="card-title">Save Resources</h3>
+                <p class="card-desc">Bookmark helpful study materials and links.</p>
+            </div>
+            <div class="card-cta">
+                <span>&rarr; Explore</span>
             </div>
         </div>
 
-        <div class="card-base hover-micro" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.85rem;">
-            <i class="fa-solid fa-briefcase" style="color: var(--accent-warning); font-size: 1.25rem;"></i>
-            <div>
-                <h3 style="font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">Manage Opportunities</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0; line-height: 1.5;">Track internships and application timelines.</p>
+        <div class="feature-card">
+            <div class="card-icon-container" style="background-color: rgba(184,134,11,0.10);">
+                <i class="fa-solid fa-briefcase" style="color: var(--accent-warning);"></i>
+            </div>
+            <div class="card-content-wrapper">
+                <span class="card-label">Opportunities</span>
+                <h3 class="card-title">Manage Opportunities</h3>
+                <p class="card-desc">Track internships and application timelines.</p>
+            </div>
+            <div class="card-cta">
+                <span>&rarr; Explore</span>
             </div>
         </div>
     </section>
 </div>
-
-<style>
-@media (max-width: 850px) {
-    .features-preview {
-        grid-template-columns: 1fr !important;
-    }
-}
-</style>
 {% endblock %}

@@ -81,6 +81,38 @@ def save_data(filename, data):
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4)
 
+def calculate_deadline_info(date_str, item_status):
+    """
+    Smart Deadline Visibility Logic.
+    Calculates the days remaining until a deadline and returns a color label and human-readable text.
+    """
+    if item_status == 'Completed':
+        return {'label': 'Completed', 'color': 'deadline-muted', 'days': -1}
+    
+    if not date_str:
+        return {'label': 'No deadline', 'color': 'default', 'days': 9999}
+        
+    try:
+        # Assuming date format is YYYY-MM-DD
+        target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        today = datetime.now().date()
+        days_left = (target_date - today).days
+        
+        if days_left < 0:
+            return {'label': 'Overdue', 'color': 'deadline-red', 'days': days_left}
+        elif days_left == 0:
+            return {'label': 'Due Today', 'color': 'deadline-red', 'days': days_left}
+        elif days_left == 1:
+            return {'label': 'Due Tomorrow', 'color': 'deadline-red', 'days': days_left}
+        elif days_left <= 3:
+            return {'label': f'Due in {days_left} Days', 'color': 'deadline-red', 'days': days_left}
+        elif days_left <= 7:
+            return {'label': f'Due in {days_left} Days', 'color': 'deadline-orange', 'days': days_left}
+        else:
+            return {'label': f'Due in {days_left} Days', 'color': 'default', 'days': days_left}
+    except ValueError:
+        return {'label': 'Invalid date', 'color': 'default', 'days': 9999}
+
 # =========================================================================
 # Flask Router & Route Handlers
 # =========================================================================
@@ -240,7 +272,37 @@ def dashboard():
     # Fetch up to 3 upcoming active goals
     active_goals = sorted([g for g in goals if g.get('status') != 'Completed'], key=lambda x: x.get('target_date', ''))[:3]
 
-    return render_template('dashboard.html', stats=stats, recent_notes=recent_notes, active_goals=active_goals)
+    # Smart Deadline - Aggregate Next 5 Upcoming Deadlines
+    upcoming_items = []
+    
+    for g in goals:
+        if g.get('status') != 'Completed' and g.get('target_date'):
+            dl_info = calculate_deadline_info(g.get('target_date'), g.get('status'))
+            if dl_info['days'] >= 0: # Only upcoming
+                upcoming_items.append({
+                    'title': g.get('title'),
+                    'type': 'Goal',
+                    'target_date': g.get('target_date'),
+                    'days_left': dl_info['days'],
+                    'deadline_info': dl_info
+                })
+            
+    for o in opportunities:
+        if o.get('status') != 'Completed' and o.get('deadline'):
+            dl_info = calculate_deadline_info(o.get('deadline'), o.get('status'))
+            if dl_info['days'] >= 0: # Only upcoming
+                upcoming_items.append({
+                    'title': o.get('name'),
+                    'type': 'Opportunity',
+                    'target_date': o.get('deadline'),
+                    'days_left': dl_info['days'],
+                    'deadline_info': dl_info
+                })
+            
+    # Sort by closest deadline, take top 5
+    upcoming_deadlines = sorted(upcoming_items, key=lambda x: x['days_left'])[:5]
+
+    return render_template('dashboard.html', stats=stats, recent_notes=recent_notes, active_goals=active_goals, upcoming_deadlines=upcoming_deadlines)
 
 # -------------------------------------------------------------------------
 # Study Goals Section (Protected)
@@ -263,10 +325,20 @@ def goals():
         category = request.form.get('category')
         target_date = request.form.get('target_date')
         status = request.form.get('status', 'Not Started')
+        description = request.form.get('description', '')
+        priority = request.form.get('priority', 'Medium')
+        progress = request.form.get('progress', '0')
 
         if not title or not category or not target_date:
             flash('Please fill out all required goal fields!', 'error')
             return redirect(url_for('goals'))
+            
+        try:
+            progress_val = int(progress)
+            if progress_val < 0 or progress_val > 100:
+                progress_val = 0
+        except ValueError:
+            progress_val = 0
 
         new_goal = {
             'id': str(uuid.uuid4()),
@@ -274,7 +346,10 @@ def goals():
             'title': title,
             'category': category,
             'target_date': target_date,
-            'status': status
+            'status': status,
+            'description': description,
+            'priority': priority,
+            'progress': progress_val
         }
 
         # Save to database
@@ -285,6 +360,11 @@ def goals():
 
     # Load and sort only user's goals
     user_goals = [g for g in all_goals if g.get('user_id') == user_id]
+    
+    # Add smart deadline labels
+    for g in user_goals:
+        g['deadline_info'] = calculate_deadline_info(g.get('target_date', ''), g.get('status', ''))
+        
     user_goals = sorted(user_goals, key=lambda x: (x.get('status') == 'Completed', x.get('target_date', '')))
     return render_template('goals.html', goals=user_goals)
 
@@ -419,6 +499,7 @@ def opportunities():
         status = request.form.get('status', 'Saved')
         link = request.form.get('link')
         notes = request.form.get('notes')
+        category = request.form.get('category', 'Events') # Default if empty
 
         if not name or not opp_type or not deadline:
             flash('Opportunity name, type, and deadline are required!', 'error')
@@ -435,7 +516,8 @@ def opportunities():
             'deadline': deadline,
             'status': status,
             'link': link,
-            'notes': notes
+            'notes': notes,
+            'category': category
         }
 
         all_opps.append(new_opp)
@@ -444,6 +526,11 @@ def opportunities():
         return redirect(url_for('opportunities'))
 
     user_opps = [o for o in all_opps if o.get('user_id') == user_id]
+    
+    # Add smart deadline labels
+    for o in user_opps:
+        o['deadline_info'] = calculate_deadline_info(o.get('deadline', ''), o.get('status', ''))
+        
     user_opps = sorted(user_opps, key=lambda x: (x.get('status') == 'Completed', x.get('deadline', '')))
     return render_template('opportunities.html', opportunities=user_opps)
 
@@ -696,6 +783,28 @@ def how_it_works():
     Documents details of web app components in a student-friendly format.
     """
     return render_template('how_it_works.html')
+
+# -------------------------------------------------------------------------
+# Calendar View Section (Protected)
+# -------------------------------------------------------------------------
+
+@app.route('/calendar')
+def calendar():
+    """
+    Calendar Route.
+    Displays deadlines and events on a monthly grid.
+    """
+    if not session.get('user_id'):
+        flash('Please sign in to view the calendar!', 'error')
+        return redirect(url_for('login'))
+
+    user_id = session.get('user_id')
+    
+    # Load user data
+    goals = [g for g in load_data('goals.json') if g.get('user_id') == user_id]
+    opportunities = [o for o in load_data('opportunities.json') if o.get('user_id') == user_id]
+    
+    return render_template('calendar.html', goals=goals, opportunities=opportunities)
 
 # =========================================================================
 # Application Entry Point
