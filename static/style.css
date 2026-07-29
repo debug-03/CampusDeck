@@ -32,6 +32,7 @@
     --radius-md: 6px;
     /* GitHub style sharp borders */
     --radius-lg: 12px;
+    --streak-empty: #D8D8D8;
 }
 
 [data-theme="dark"] {
@@ -53,6 +54,7 @@
     --text-primary: #E6EDF3;
     --text-muted: #8B949E;
     --text-submuted: #484f58;
+    --streak-empty: #3A3F46;
 }
 
 /* Reset & Base Elements */
@@ -1036,16 +1038,43 @@ a {
 .streak-day-cell {
     width: 10px;
     height: 10px;
-    border-radius: 2px;
-    background-color: #21262d;
+    border-radius: 3px;
+    background-color: var(--streak-empty, #D8D8D8);
+    transition: background-color 0.35s ease, transform 0.2s ease;
 }
 
-.streak-day-cell.active {
-    background-color: var(--accent-primary);
+.streak-day-cell:hover {
+    transform: scale(1.25);
 }
 
+.streak-day-cell.level-0 {
+    background-color: var(--streak-empty, #D8D8D8);
+}
+
+.streak-day-cell.level-1 {
+    background-color: #8ce19e;
+}
+
+[data-theme="dark"] .streak-day-cell.level-1 {
+    background-color: #0e4429;
+}
+
+.streak-day-cell.level-2 {
+    background-color: #40c463;
+}
+
+[data-theme="dark"] .streak-day-cell.level-2 {
+    background-color: #006d32;
+}
+
+.streak-day-cell.level-3,
 .streak-day-cell.completed {
     background-color: var(--accent-success);
+}
+
+.streak-day-cell.level-4,
+.streak-day-cell.active {
+    background-color: var(--accent-primary);
 }
 
 /* Cards grids for general items */

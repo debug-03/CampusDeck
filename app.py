@@ -27,7 +27,7 @@ the backend by saving and loading data to simple local JSON files.
 import os
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -302,7 +302,58 @@ def dashboard():
     # Sort by closest deadline, take top 5
     upcoming_deadlines = sorted(upcoming_items, key=lambda x: x['days_left'])[:5]
 
-    return render_template('dashboard.html', stats=stats, recent_notes=recent_notes, active_goals=active_goals, upcoming_deadlines=upcoming_deadlines)
+    # ---------------------------------------------------------------------
+    # First-Time User Detection & 14-Day Study Activity Calculation
+    # ---------------------------------------------------------------------
+    # Detect if user has any recorded activity across goals, resources, opportunities, notes, or marks.
+    has_activity = (len(goals) + len(resources) + len(opportunities) + len(notes) + len(marks)) > 0
+
+    today = datetime.now().date()
+    daily_counts = {}
+    for idx in range(14):
+        d_str = (today - timedelta(days=13 - idx)).strftime('%Y-%m-%d')
+        daily_counts[d_str] = 0
+
+    if has_activity:
+        today_str = today.strftime('%Y-%m-%d')
+        for item_list in [goals, resources, opportunities, notes, marks]:
+            for item in item_list:
+                # Minimal fallback: use created_at if recorded, otherwise default to today's date for legacy records
+                created_str = item.get('created_at', today_str)[:10]
+                if created_str in daily_counts:
+                    daily_counts[created_str] += 1
+
+    activity_days = []
+    active_days_this_week = 0
+    for idx in range(14):
+        d_date = today - timedelta(days=13 - idx)
+        d_str = d_date.strftime('%Y-%m-%d')
+        count = daily_counts.get(d_str, 0)
+
+        # 0 is neutral muted color, 1-4 are data-driven activity colors
+        if not has_activity or count == 0:
+            level = 0
+        elif count == 1:
+            level = 1
+        elif count == 2:
+            level = 2
+        elif count == 3:
+            level = 3
+        else:
+            level = 4
+
+        if idx >= 7 and count > 0:
+            active_days_this_week += 1
+
+        tooltip = f"{count} action{'s' if count != 1 else ''} on {d_date.strftime('%b %d')}" if has_activity else "No activity yet"
+        activity_days.append({
+            'date': d_str,
+            'count': count,
+            'level': level,
+            'tooltip': tooltip
+        })
+
+    return render_template('dashboard.html', stats=stats, recent_notes=recent_notes, active_goals=active_goals, upcoming_deadlines=upcoming_deadlines, has_activity=has_activity, activity_days=activity_days, active_days_this_week=active_days_this_week)
 
 # -------------------------------------------------------------------------
 # Study Goals Section (Protected)
@@ -349,7 +400,8 @@ def goals():
             'status': status,
             'description': description,
             'priority': priority,
-            'progress': progress_val
+            'progress': progress_val,
+            'created_at': datetime.now().strftime('%Y-%m-%d')  # Record creation date for 14-day study activity chart
         }
 
         # Save to database
@@ -449,7 +501,8 @@ def resources():
             'type': res_type,
             'link': link,
             'subject': subject,
-            'description': description
+            'description': description,
+            'created_at': datetime.now().strftime('%Y-%m-%d')  # Record creation date for 14-day study activity chart
         }
 
         all_resources.append(new_resource)
@@ -517,7 +570,8 @@ def opportunities():
             'status': status,
             'link': link,
             'notes': notes,
-            'category': category
+            'category': category,
+            'created_at': datetime.now().strftime('%Y-%m-%d')  # Record creation date for 14-day study activity chart
         }
 
         all_opps.append(new_opp)
@@ -716,7 +770,8 @@ def marks():
             'term_end': term_end_val,
             'total': total_marks,
             'grade': grade,
-            'gp': gp
+            'gp': gp,
+            'created_at': datetime.now().strftime('%Y-%m-%d')  # Record creation date for 14-day study activity chart
         }
 
         all_marks.append(new_course)

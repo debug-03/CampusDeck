@@ -22,27 +22,28 @@
             <div class="streak-heatmap-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
                 <span class="streak-heatmap-title" style="font-size: 0.8rem; font-weight: 500; color: var(--text-primary);">Study Activity &middot; Last 14 Days</span>
                 <div class="streak-days-grid" style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 0.2rem;">
-                    <!-- Activity squares (Data logic remains unchanged) -->
-                    <div class="streak-day-cell completed" title="Day 1"></div>
-                    <div class="streak-day-cell completed" title="Day 2"></div>
-                    <div class="streak-day-cell" title="Day 3"></div>
-                    <div class="streak-day-cell completed" title="Day 4"></div>
-                    <div class="streak-day-cell active" title="Day 5"></div>
-                    <div class="streak-day-cell active" title="Day 6"></div>
-                    <div class="streak-day-cell completed" title="Day 7"></div>
-                    <div class="streak-day-cell" title="Day 8"></div>
-                    <div class="streak-day-cell active" title="Day 9"></div>
-                    <div class="streak-day-cell completed" title="Day 10"></div>
-                    <div class="streak-day-cell completed" title="Day 11"></div>
-                    <div class="streak-day-cell active" title="Day 12"></div>
-                    <div class="streak-day-cell active" title="Day 13"></div>
-                    <div class="streak-day-cell completed" title="Current Day" style="background-color: var(--accent-primary);"></div>
+                    {% if activity_days %}
+                        {% for day in activity_days %}
+                            <div class="streak-day-cell level-{{ day.level }}" title="{{ day.tooltip }}"></div>
+                        {% endfor %}
+                    {% else %}
+                        {% for i in range(14) %}
+                            <div class="streak-day-cell level-0" title="No activity yet"></div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
 
-            <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
-                8 study sessions this week &middot; {{ stats.total_goals }} goals completed &middot; {{ stats.total_resources }} resources saved
-            </div>
+            {% if not has_activity %}
+                <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color); text-align: left;">
+                    <p style="font-size: 0.8125rem; font-weight: 500; color: var(--text-muted); margin: 0 0 0.2rem 0;">No activity yet</p>
+                    <p style="font-size: 0.75rem; color: var(--text-submuted, var(--text-muted)); margin: 0; line-height: 1.4;">Start by adding your first goal or resource. Your study activity will appear here.</p>
+                </div>
+            {% else %}
+                <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
+                    {{ active_days_this_week }} study day{% if active_days_this_week != 1 %}s{% endif %} this week &middot; {{ stats.total_goals }} goals completed &middot; {{ stats.total_resources }} resources saved
+                </div>
+            {% endif %}
         </div>
 
         <!-- Box 2: CGPA Metric Card - Clean GitHub Stats Style (1x1) -->
